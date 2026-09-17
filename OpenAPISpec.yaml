@@ -13,7 +13,6 @@ paths:
   "/NewPECWorkflow":
     post:
       tags:
-        - PEC
         - New applicant
       summary: Endpoint for creating new PEC workflow
       description: Parse data to create a new PEC workflow.
@@ -22,6 +21,47 @@ paths:
           application/json:
             schema: 
               $ref: '#/components/schemas/PECRequest'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessfulIntergrationResponce'
+        '400':
+          description: Payload Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnseccessfulIntergrationResponce'
+        '401':
+          description: Authentication Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnseccessfulIntergrationResponce'
+        '409':
+          description: Idempotency Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnseccessfulIntergrationResponce'
+        '500':
+          description: Internal Service Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnseccessfulIntergrationResponce'
+    get:
+      tags:
+        - Applicant Update
+      summary: Get update from PEC
+      description: This will return the current of an PEC workflow given the submitted unique ID
+      requestBody:
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/PECGetUpdate'
       responses:
         '200':
           description: ''
@@ -101,6 +141,18 @@ components:
           description: The status of the newly created PEC workflow 
           type: string
       description: Successful response message
+    PECGetUpdate:
+      title: PEC Update Request Object
+      type: object
+      properties:
+        UniqueERPRequestID:
+          title: Unique ERP Request ID
+          description: The unique id created by the ERP system to identify this request.
+          type: string
+        PECWorkflowID:
+          title: PEC Workflow ID
+          description: The unique ID that was assigned to the PEC workflow on creation
+          type: string
     PECRequest:
       title: PEC Request Object
       type: object
