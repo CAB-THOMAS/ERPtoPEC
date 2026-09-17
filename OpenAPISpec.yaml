@@ -1,0 +1,133 @@
+openapi: 3.0.1
+info:
+  title: Vacancy Submission
+  description: API integration to send new vacancies to a jobs board
+  version: v0.1
+servers:
+- url: "{server}/xx/v2"
+  description: default server
+  variables:
+    server:
+      default: https://xxxx.x.xxx
+paths:
+  "/vacancy":
+    post:
+      tags:
+        - New Vacacny
+      summary: Endpoint for creating new vacancies
+      description: Parse data to create new vacancy on jobs board based on data object sent from an ERP.
+      requestBody:
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/VacancyObject'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessfulIntergrationResponce'
+        '400':
+          description: Payload Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnseccessfulIntergrationResponce'
+        '401':
+          description: Authentication Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnseccessfulIntergrationResponce'
+        '409':
+          description: Idempotency Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnseccessfulIntergrationResponce'
+        '500':
+          description: Internal Service Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnseccessfulIntergrationResponce'
+components:
+  schemas:
+    UnseccessfulIntergrationResponce:
+      title: Unsuccessful response to Vacancy data
+      type: object
+      properties:
+        ErrorCode:
+          title: Error Code
+          type: integer
+          description: the numeric error to pass back to the user
+        Title:
+          title: Error title
+          description: the title of the error
+          type: string
+        Message:
+          title: Error description
+          type: string
+          description: A description of the error
+        ErrorDetailArray:
+          title: Error Detail Array
+          description: >-
+            An array containing any extra details of the error, for example
+            field names.
+          type: array
+          items:
+            type: string
+      description: An object containing the details of unsuccessful integration and error message.
+    SuccessfulIntergrationResponce:
+      title: Successful response to Vacancy data
+      type: object
+      properties:
+        Message:
+          title: Note
+          type: string
+          description: note
+        VacancyID:
+          title: Vacancy ID
+          description: The PEAG ID of the newly created Vacancy
+          type: string
+        ERPID:
+          title: ERP ID
+          description: The ERP ID of the newly created Vacancy
+          type: string
+        VacancyStatus:
+          title: Vacancy Status
+          description: The status of the newly created vacancy
+          type: string
+      description: Successful response message
+    VacancyObject:
+      title: Vacancy Object
+      type: object
+      properties:
+        VacancyAdvertClosingDate:
+          title: Vacancy Advert Closing Date
+          description: The date the vacancy advert will close
+          type: string
+          format: date-time
+        VacancyAdvertOpeningDate:
+          title: Vacancy Advert Opening Date
+          description: The date the vacancy advert will go live
+          type: string
+          format: date-time
+        VacancyBenefits:
+          title: Vacancy Benefits
+          description: A description of what benefits are offered with the vacancy.
+          type: string
+          example: You get paid to enjoy the outdoors
+        VacancyDescription:
+          title: Vacancy Description
+          description: The full description of the vacancy
+          type: string
+          example: Explore the countryside walking dogs
+        VacancyDesirableExperince:
+          title: Vacancy Desirable Experince
+          description: The specific experince wanted for the vacancy
+          type: string
+          example: Had walked a dog before
+       
+
