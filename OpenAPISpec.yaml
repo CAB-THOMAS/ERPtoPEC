@@ -1,7 +1,7 @@
 openapi: 3.0.1
 info:
-  title: Vacancy Submission
-  description: API integration to send new vacancies to a jobs board
+  title: New PEC Request
+  description: API interation to generate a new PEC workflow, to perfrom the requested pre employment checks on a applicant. From ERP to PEC
   version: v0.1
 servers:
 - url: "{server}/xx/v2"
@@ -10,17 +10,18 @@ servers:
     server:
       default: https://xxxx.x.xxx
 paths:
-  "/vacancy":
+  "/NewPECWorkflow":
     post:
       tags:
-        - New Vacacny
-      summary: Endpoint for creating new vacancies
-      description: Parse data to create new vacancy on jobs board based on data object sent from an ERP.
+        - PEC
+        - New applicant
+      summary: Endpoint for creating new PEC workflow
+      description: Parse data to create a new PEC workflow.
       requestBody:
         content:
           application/json:
             schema: 
-              $ref: '#/components/schemas/VacancyObject'
+              $ref: '#/components/schemas/PECRequest'
       responses:
         '200':
           description: ''
@@ -87,47 +88,87 @@ components:
           title: Note
           type: string
           description: note
-        VacancyID:
-          title: Vacancy ID
-          description: The PEAG ID of the newly created Vacancy
+        PECWorkflowID:
+          title: PEC Workflow ID
+          description: The unique ID created by the PEC workflow for this new case
           type: string
-        ERPID:
-          title: ERP ID
-          description: The ERP ID of the newly created Vacancy
+        UniqueERPRequestID:
+          title: Unique ERP Request ID
+          description: The unique id created by the ERP system to identify this request.
           type: string
-        VacancyStatus:
-          title: Vacancy Status
-          description: The status of the newly created vacancy
+        PECStatus:
+          title: PEC Status
+          description: The status of the newly created PEC workflow 
           type: string
       description: Successful response message
-    VacancyObject:
-      title: Vacancy Object
+    PECRequest:
+      title: PEC Request Object
       type: object
       properties:
-        VacancyAdvertClosingDate:
-          title: Vacancy Advert Closing Date
-          description: The date the vacancy advert will close
+        UniqueERPRequestID:
+          title: Unique ERP Request ID
+          description: The unique id created by the ERP system to identify this request.
           type: string
-          format: date-time
-        VacancyAdvertOpeningDate:
-          title: Vacancy Advert Opening Date
-          description: The date the vacancy advert will go live
+        PositionName:
+          title: Position Name
+          description: The name of the position the applicant will be associated with
           type: string
-          format: date-time
-        VacancyBenefits:
-          title: Vacancy Benefits
-          description: A description of what benefits are offered with the vacancy.
+        Cluster:
+          title: Cluster
+          description: The name of the cluster the request id coming from
           type: string
-          example: You get paid to enjoy the outdoors
-        VacancyDescription:
-          title: Vacancy Description
-          description: The full description of the vacancy
+        Department:
+          title: Department
+          description: The name of the department the position is with
           type: string
-          example: Explore the countryside walking dogs
-        VacancyDesirableExperince:
-          title: Vacancy Desirable Experince
-          description: The specific experince wanted for the vacancy
+        Applicant:
+          title: Applicant Details
+          description: An object containing applicant details
+          "$ref": "#/components/schemas/ApplicantOb"
+        Checks:
+          title: Checks
+          description: An array of requested checks
+          type: array
+          items: 
+            "$ref": "#/components/schemas/CheckOb"
+    ApplicantOb:
+      title: Applicant Object
+      description: An object that is used to describe the properties of an applicant
+      type: object
+      properties:
+        FirstName:
+          title: First name
+          description: The applicants first name
           type: string
-          example: Had walked a dog before
-       
+        LastName: 
+          title: Last name
+          description: The applicants last name
+          type: string
+        PreferedName:
+          title: Prefered name
+          description: The applicants prefered name
+          type: string
+        Email:
+          title: Email Address
+          description: Email Address of applicant
+          type: string
+        DateOfBirth:
+          title: Date of Birth 
+          description: The applicants date of birth
+          type: string
+          format: date
+    CheckOb:
+      title: Check Object
+      description: An object containing the details a requested checks
+      type: object
+      properties:
+        CheckName:
+          title: Check Name
+          description: The name of the check requested
+          type: string
+        CheckLevel:
+          title: Check Level
+          description: The level of the requested check
+          type: string
+
 
