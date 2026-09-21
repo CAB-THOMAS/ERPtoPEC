@@ -1,7 +1,7 @@
 openapi: 3.0.1
 info:
-  title: New PEC Request
-  description: API interation to generate a new PEC workflow, to perfrom the requested pre employment checks on a applicant. From ERP to PEC
+  title: Individual PEC request
+  description: API interation to generate a single new PEC workflow for an applicant
   version: v0.1
 servers:
 - url: "{server}/xx/v2"
@@ -13,7 +13,7 @@ paths:
   "/PEC":
     post:
       tags:
-        - New applicant
+        - Individual PEC Workflow Request
       summary: Endpoint for creating new PEC workflow
       description: Parse data to create a new PEC workflow.
       requestBody:

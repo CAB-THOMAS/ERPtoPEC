@@ -1,7 +1,7 @@
 openapi: 3.0.1
 info:
-  title: New PEC Request
-  description: API interation to generate a new PEC workflow, to perfrom the requested pre employment checks on a applicant. From ERP to PEC
+  title: Batch PEC Request
+  description: API interation to generate a collection of new PEC workflow based on a single campaign
   version: v0.1
 servers:
 - url: "{server}/xx/v2"
@@ -10,12 +10,12 @@ servers:
     server:
       default: https://xxxx.x.xxx
 paths:
-  "/PECIncoming":
+  "/PEC":
     post:
       tags:
-        - New applicant
-      summary: Endpoint for creating new PEC workflow
-      description: Parse data to create a new PEC workflow.
+        - Batch PEC workflow request
+      summary: Endpoint for creating batch new PEC workflows
+      description: Parse data to create a new PEC workflows.
       requestBody:
         content:
           application/json:
