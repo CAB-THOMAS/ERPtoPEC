@@ -1,0 +1,200 @@
+openapi: 3.0.1
+info:
+  title: New PEC Request
+  description: API interation to generate a new PEC workflow, to perfrom the requested pre employment checks on a applicant. From ERP to PEC
+  version: v0.1
+servers:
+- url: "{server}/xx/v2"
+  description: default server
+  variables:
+    server:
+      default: https://xxxx.x.xxx
+paths:
+  "/PECIncoming":
+    post:
+      tags:
+        - New applicant
+      summary: Endpoint for creating new PEC workflow
+      description: Parse data to create a new PEC workflow.
+      requestBody:
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/PECRequest'
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessfulIntergrationResponce'
+        '400':
+          description: Payload Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnseccessfulIntergrationResponce'
+        '401':
+          description: Authentication Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnseccessfulIntergrationResponce'
+        '409':
+          description: Idempotency Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnseccessfulIntergrationResponce'
+        '500':
+          description: Internal Service Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnseccessfulIntergrationResponce'
+components:
+  schemas:
+    UnseccessfulIntergrationResponce:
+      title: Unsuccessful response to Vacancy data
+      type: object
+      properties:
+        ErrorCode:
+          title: Error Code
+          type: integer
+          description: the numeric error to pass back to the user
+        Title:
+          title: Error title
+          description: the title of the error
+          type: string
+        Message:
+          title: Error description
+          type: string
+          description: A description of the error
+        ErrorDetailArray:
+          title: Error Detail Array
+          description: >-
+            An array containing any extra details of the error, for example
+            field names.
+          type: array
+          items:
+            type: string
+      description: An object containing the details of unsuccessful integration and error message.
+    SuccessfulIntergrationResponce:
+      title: Successful response to Vacancy data
+      type: object
+      properties:
+        Message:
+          title: Note
+          type: string
+          description: note
+        CampaginID:
+          title: Campagin ID
+          description: The ID of the campaign
+          type: string
+          example: CMP12345
+        Cluster:
+          title: Cluster
+          description: The name of the cluster the request id coming from
+          type: string
+          example: Unity
+        ApplicantConfirmations:
+          title: PEC Status
+          description: The status of the newly created PEC workflow 
+          type: array
+          items:
+            - "$ref": "#/components/schemas/ApplicantConfirmation"
+      description: Successful response message
+    PECRequest:
+      title: PEC Request Object
+      type: object
+      properties:
+        CampaginID:
+          title: Campagin ID
+          description: The ID of the campaign
+          type: string
+          example: CMP12345
+        Cluster:
+          title: Cluster
+          description: The name of the cluster the request id coming from
+          type: string
+          example: Unity
+        Department:
+          title: Department
+          description: The name of the department the position is with
+          type: string
+          example: HMRC
+        Applicants:
+          title: Applicants
+          description: An array of applicants to be checked
+          type: array
+          items:
+            - "$ref": "#/components/schemas/ApppicantIncoming"
+    ApppicantIncoming:
+      title: Incoming Applicant Object
+      description: An object that is used to describe the properties of an applicant
+      type: object
+      properties:
+        FirstName:
+          title: First name
+          description: The applicants first name
+          type: string
+          example: Robert
+        LastName: 
+          title: Last name
+          description: The applicants last name
+          type: string
+          example: Builder
+        PreferedName:
+          title: Prefered name
+          description: The applicants prefered name
+          type: string
+          example: Bob
+        Email:
+          title: Email Address
+          description: Email Address of applicant
+          type: string
+          example: bob@builder.com
+        DateOfBirth:
+          title: Date of Birth 
+          description: The applicants date of birth
+          type: string
+          format: date
+          example: 2017-07-21
+        JobTitle:
+          title: Job Title
+          description: The title of the role the applicant is being PECed for
+          type: string
+          example: Site Manager
+        UniqueERPRequestID:
+          title: Unique ERP Request ID
+          description: The unique id created by the ERP system to identify this request.
+          type: string
+          example: ERP12345
+        CheckTemplate:
+          title: Check Template Code
+          description: The code the check workflow template to be used
+          type: string
+    ApplicantConfirmation:
+      title: Applicant Confirmation Response
+      description: sdfsdf
+      type: object
+      properties:
+        UniqueERPRequestID:
+          title: Unique ERP Request ID
+          description: The unique id created by the ERP system to identify this request.
+          type: string
+          example: ERP12345
+        PECWorkflowID:
+          title: Unique PECE workflow ID
+          description: sdfdsfs
+          type: string
+          example: PEC12345
+        PECWorkFlowStatus:
+          title: PEC Workflow Status
+          description: The current status of the PEC workflow
+          type: string
+          example: ToDo
+
+
+
+

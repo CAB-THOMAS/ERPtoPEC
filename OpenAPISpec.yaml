@@ -10,7 +10,7 @@ servers:
     server:
       default: https://xxxx.x.xxx
 paths:
-  "/NewPECWorkflow":
+  "/PEC":
     post:
       tags:
         - New applicant
@@ -100,22 +100,15 @@ components:
           description: The status of the newly created PEC workflow 
           type: string
       description: Successful response message
-    PECGetUpdate:
-      title: PEC Update Request Object
-      type: object
-      properties:
-        UniqueERPRequestID:
-          title: Unique ERP Request ID
-          description: The unique id created by the ERP system to identify this request.
-          type: string
-        PECWorkflowID:
-          title: PEC Workflow ID
-          description: The unique ID that was assigned to the PEC workflow on creation
-          type: string
     PECRequest:
       title: PEC Request Object
       type: object
       properties:
+        CampaginID:
+          title: Campagin ID
+          description: The ID of the campaign
+          type: string
+          example: CMP12345
         UniqueERPRequestID:
           title: Unique ERP Request ID
           description: The unique id created by the ERP system to identify this request.
@@ -136,14 +129,12 @@ components:
           description: The name of the department the position is with
           type: string
           example: HMRC
+        CheckTemplate:
+          title: Check Template Code
+          description: The code the check workflow template to be used
+          type: string
         Applicant:
           "$ref": "#/components/schemas/ApplicantOb"
-        ChecksArray:
-          title: Checks Array
-          description: An array of requested checks
-          type: array
-          items: 
-            "$ref": "#/components/schemas/CheckOb"
     ApplicantOb:
       title: Applicant Object
       description: An object that is used to describe the properties of an applicant
@@ -175,23 +166,6 @@ components:
           type: string
           format: date
           example: 2017-07-21
-    CheckOb:
-      title: Check Object
-      description: An object containing the details a requested checks
-      type: object
-      properties:
-        CheckName:
-          title: Check Name
-          description: The name of the check requested
-          type: string
-        CheckLevel:
-          title: Check Level
-          description: The level of the requested check
-          type: string
-      example:
-          - CheckName: UKSV
-            CheckLevel: DV
-          - CheckName: DBS
-            CheckLevel: Enhanced  
+
 
 
