@@ -109,16 +109,6 @@ components:
           description: The ID of the campaign
           type: string
           example: CMP12345
-        UniqueERPRequestID:
-          title: Unique ERP Request ID
-          description: The unique id created by the ERP system to identify this request.
-          type: string
-          example: ERP12345
-        PositionName:
-          title: Position Name
-          description: The name of the position the applicant will be associated with
-          type: string
-          example: Site Manager
         Cluster:
           title: Cluster
           description: The name of the cluster the request id coming from
@@ -129,17 +119,6 @@ components:
           description: The name of the department the position is with
           type: string
           example: HMRC
-        CheckTemplate:
-          title: Check Template Code
-          description: The code the check workflow template to be used
-          type: string
-        Applicant:
-          "$ref": "#/components/schemas/ApplicantOb"
-    ApplicantOb:
-      title: Applicant Object
-      description: An object that is used to describe the properties of an applicant
-      type: object
-      properties:
         FirstName:
           title: First name
           description: The applicants first name
@@ -166,6 +145,51 @@ components:
           type: string
           format: date
           example: 2017-07-21
+        JobTitle:
+          title: Job Title
+          description: The title of the role the applicant is being PECed for
+          type: string
+          example: Site Manager
+        JobLocation:
+          title: Job Location
+          description: The Location where the applicant will work.
+          type: string
+          example: England
+        UniqueERPRequestID:
+          title: Unique ERP Request ID
+          description: The unique id created by the ERP system to identify this request.
+          type: string
+          example: ERP12345
+        CheckTemplateName:
+          title: Check Template Name
+          description: The name the check workflow template to be used
+          type: string
+        CheckTemplateGUID:
+          title: Check Template GUID
+          description: The GUID the check workflow template to be used
+          type: string
+          format: uuid
+        Checks:
+          title: Checks
+          description: An array of additional checks or check modifers
+          type: array
+          items:
+            - "$ref": "#/components/schemas/CheckRequired"
+    CheckRequired:
+      title: Check CheckRequired
+      description: an object repersenting a specifc check request
+      type: object
+      properties:
+        CheckName:
+          title: Check Name
+          description: The name of the check required
+          type: string
+          example: UKSV
+        CheckModifer:
+          title: Check Modifer
+          description: Used to send a modifer of the check or level
+          type: string
+          example: DV
 
 
 

@@ -165,18 +165,34 @@ components:
           description: The title of the role the applicant is being PECed for
           type: string
           example: Site Manager
+        JobLocation:
+          title: Job Location
+          description: The Location where the applicant will work.
+          type: string
+          example: England
         UniqueERPRequestID:
           title: Unique ERP Request ID
           description: The unique id created by the ERP system to identify this request.
           type: string
           example: ERP12345
-        CheckTemplate:
-          title: Check Template Code
-          description: The code the check workflow template to be used
+        CheckTemplateName:
+          title: Check Template Name
+          description: The name the check workflow template to be used
           type: string
+        CheckTemplateGUID:
+          title: Check Template GUID
+          description: The GUID the check workflow template to be used
+          type: string
+          format: uuid
+        Checks:
+          title: Checks
+          description: An array of additional checks or check modifers
+          type: array
+          items:
+            - "$ref": "#/components/schemas/CheckRequired"
     ApplicantConfirmation:
       title: Applicant Confirmation Response
-      description: sdfsdf
+      description: Confirmation response
       type: object
       properties:
         UniqueERPRequestID:
@@ -194,7 +210,21 @@ components:
           description: The current status of the PEC workflow
           type: string
           example: ToDo
-
+    CheckRequired:
+      title: Check CheckRequired
+      description: an object repersenting a specifc check request
+      type: object
+      properties:
+        CheckName:
+          title: Check Name
+          description: The name of the check required
+          type: string
+          example: UKSV
+        CheckModifer:
+          title: Check Modifer
+          description: Used to send a modifer of the check or level
+          type: string
+          example: DV
 
 
 
