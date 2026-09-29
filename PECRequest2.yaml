@@ -126,7 +126,7 @@ components:
         errorDetailArray:
           - "criminalRecordCheckLevel is required."
           - "jobLocations must contain at least 1 item."  
-    SuccessResponse:
+    SuccessResponseCampaign:
       title: Successful Integration Response
       type: object
       properties:
@@ -239,12 +239,6 @@ components:
           description: Optional. Specific check requirements to bypass general departmental policies if explicitly needed for this applicant.
           items:
             $ref: '#/components/schemas/CheckOverride'
-        applicants:
-          title: Applicants
-          type: array
-          description: An array of applicants requiring pre-employment checks.
-          items:
-            $ref: '#/components/schemas/Applicant'
     CaseManager:
       title: Case Manager
       type: object
