@@ -1,6 +1,6 @@
 openapi: 3.0.1
 info:
-  title: Request Checks
+  title: PEC Workflow and Campagin Initiation
   description: API interaction to generate new PEC campaign, then additional Endpoint to add people
   version: 0.1
 servers:
@@ -13,8 +13,8 @@ paths:
     post:
       tags:
         - Create New PEC Campagin
-      summary: Endpoint for requesting new PEC workflows
-      description: Parse data to create new PEC workflows for campaign candidates.
+      summary: Endpoint for creating new campaigns in the PEC system
+      description: Parse data to create new PEC campaign for campaign candidates.
       requestBody:
         required: true
         content:
@@ -55,8 +55,8 @@ paths:
   /campaign/{campaignId}:
     post:
       tags:
-        - New PEC workflow(s) for existing campaign
-      summary: Endpoint for requesting new PEC workflows
+        - Add Applicants to PEC Campagin
+      summary: Endpoint for adding new Applicants to a PEC campaign
       description: Parse data to create new PEC workflows for campaign candidates.
       requestBody:
         required: true
