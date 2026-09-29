@@ -1,0 +1,320 @@
+openapi: 3.0.1
+info:
+  title: Request Checks
+  description: API interaction to generate new PEC campaign, then additional Endpoint to add people
+  version: 0.1
+servers:
+  - url: https://xxx.production.gov.uk/v2
+    description: Production environment
+  - url: https://xxx.test.gov.uk/v2
+    description: Testing and sandbox environment
+paths:
+  /campaign:
+    post:
+      tags:
+        - PEC workflow request
+      summary: Endpoint for requesting new PEC workflows
+      description: Parse data to create new PEC workflows for campaign candidates.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/PecRequest'
+      responses:
+        '201':
+          description: Successfully created the PEC workflows.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Payload Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Authentication Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Idempotency Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Service Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+  /campaign/{campaignId}:
+    post:
+      tags:
+        - Add Applicants to Campagin
+      summary: Endpoint for requesting new PEC workflows
+      description: Parse data to create new PEC workflows for campaign candidates.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/PecRequest'
+      responses:
+        '201':
+          description: Successfully created the PEC workflows.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '400':
+          description: Payload Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Authentication Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Idempotency Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Internal Service Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+components:
+  schemas:
+    ErrorResponse:
+      title: Error Response
+      type: object
+      properties:
+        errorCode:
+          title: Error Code
+          type: integer
+          description: The numeric error code to pass back to the consumer.
+        title:
+          title: Error Title
+          type: string
+          description: The title of the error.
+        message:
+          title: Error Message
+          type: string
+          description: A detailed description of the error.
+        errorDetailArray:
+          title: Error Detail Array
+          type: array
+          description: An array containing any extra details of the error, for example field names.
+          items:
+            type: string
+      example:
+        errorCode: 400
+        title: "Validation Error"
+        message: "The request payload failed schema validation."
+        errorDetailArray:
+          - "criminalRecordCheckLevel is required."
+          - "jobLocations must contain at least 1 item."  
+    SuccessResponse:
+      title: Successful Integration Response
+      type: object
+      properties:
+        message:
+          title: Note
+          type: string
+          description: Status note regarding the request creation.
+        campaignId:
+          title: Campaign ID
+          type: string
+          description: The ID of the campaign provided by the consuming system.
+          example: CMP12345
+        businessCluster:
+          title: Business Cluster
+          type: string
+          description: The name of the organizational cluster the request is coming from.
+          example: Unity
+        workflowConfirmations:
+          title: PEC Workflow Confirmations
+          type: array
+          description: The statuses and identifiers of the newly created PEC workflows.
+          items:
+            $ref: '#/components/schemas/WorkflowConfirmation'
+    PecRequest:
+      title: PEC Request Object
+      type: object
+      required:
+        - campaignId
+        - employingDepartment
+        - requestingSystemId
+        - jobTitle
+        - jobLocations
+        - caseManagers
+        - applicants
+      properties:
+        campaignId:
+          title: Campaign ID
+          type: string
+          description: The unique identifier of the recruitment campaign.
+          example: CMP12345
+        businessCluster:
+          title: Business Cluster
+          type: string
+          description: The name of the organizational cluster the request is coming from.
+          example: Unity
+        employingDepartment:
+          title: Employing Department
+          type: string
+          description: The name of the department the position is with.
+          example: HMRC
+        requestingSystemId:
+          title: Requesting System ID
+          type: string
+          description: The unique identifier for the consuming system or service making the request.
+          example: SYS-99823
+        caseManagers:
+          title: Case Managers
+          type: array
+          description: A list of business contacts responsible for managing these active checking cases.
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/CaseManager'
+        campaignTemplate:
+          title: Campagin Template
+          description: An id supplied by the requesting system to tell the PEC service which checks are to be performed
+          type: string
+          example: SEO-SC-1
+        specificCheckOverrides:
+          title: Specific Check Overrides (Optional)
+          type: array
+          description: Optional. Specific check requirements to bypass general departmental policies if explicitly needed for this applicant.
+          items:
+            $ref: '#/components/schemas/CheckOverride'
+        applicants:
+          title: Applicants
+          type: array
+          description: An array of applicants requiring pre-employment checks.
+          items:
+            $ref: '#/components/schemas/Applicant'
+    CaseManager:
+      title: Case Manager
+      type: object
+      description: The contact details of a person managing these active checking cases.
+      required:
+        - name
+        - email
+      properties:
+        name:
+          title: Name
+          type: string
+          example: Jane Doe
+        email:
+          title: Email
+          type: string
+          format: email
+          example: jane.doe@gov.uk
+        phoneNumber:
+          title: Phone Number
+          type: string
+          example: "+44 7700 900077"
+    Applicant:
+      title: Applicant Object
+      type: object
+      required:
+        - firstName
+        - lastName
+        - email
+        - jobTitle
+        - jobLocations
+      properties:
+        firstName:
+          title: First Name
+          type: string
+          example: Robert
+        lastName: 
+          title: Last Name
+          type: string
+          example: Builder
+        email:
+          title: Email Address
+          type: string
+          format: email
+          example: bob@builder.com
+        telephoneNumber:
+          title: Telephone Number
+          type: string
+          description: The applicant's contact telephone number.
+          example: "+44 7700 900123"
+        dateOfBirth:
+          title: Date of Birth 
+          type: string
+          format: date
+          example: 2017-07-21
+        clientApplicantId:
+          title: Client Applicant ID
+          type: string
+          description: The unique ID assigned by the consuming source system to identify this applicant.
+          example: APP-88291
+        jobTitle:
+          title: Job Title
+          type: string
+          description: The title of the role the applicants are being checked for.
+          example: Site Manager
+        jobLocations:
+          title: Job Locations
+          type: array
+          description: The specific UK countries or overseas locations where the jobs for this campaign are housed.
+          minItems: 1
+          items:
+            type: string
+            enum: [England, Scotland, Wales, Northern Ireland, Overseas]
+          example: [England, Overseas]
+        specificCheckOverrides:
+          title: Specific Check Overrides (Optional)
+          type: array
+          description: Optional. Specific check requirements to bypass general departmental policies if explicitly needed for this applicant.
+          items:
+            $ref: '#/components/schemas/CheckOverride'
+    WorkflowConfirmation:
+      title: Workflow Confirmation Response
+      type: object
+      properties:
+        clientApplicantId:
+          title: Client Applicant ID
+          type: string
+          description: The unique ID assigned by the consuming source system.
+          example: APP-88291
+        providerApplicantId:
+          title: Provider Applicant ID
+          type: string
+          description: The unique identifier generated by the service provider for this candidate.
+          example: PEC-12345
+        workflowStatus:
+          title: Workflow Status
+          type: string
+          description: The current status of the created PEC workflow.
+          example: Pending
+    CheckOverride:
+      title: Check Override
+      type: object
+      properties:
+        checkType:
+          title: Check Type
+          type: string
+          description: The explicit type of the check required.
+          example: UKSV
+        checkLevel:
+          title: Check Level
+          type: string
+          description: Used to send a specific modifier or level for the check.
+          example: DV
