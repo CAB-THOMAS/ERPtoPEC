@@ -1,6 +1,6 @@
 openapi: 3.0.1
 info:
-  title: PEC Workflow and Campagin Initiation
+  title: PEC Workflow and Campaign Initiation
   description: API interaction to generate new PEC campaign, then additional Endpoint to add people
   version: 0.1.0
 servers:
@@ -12,7 +12,7 @@ paths:
   /campaign:
     post:
       tags:
-        - Create New PEC Campagin
+        - Create New PEC Campaign
       summary: Endpoint for creating new campaigns in the PEC system
       description: Parse data to create new PEC campaign for campaign candidates.
       requestBody:
@@ -92,7 +92,7 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
     post:
       tags:
-        - Add Applicants to PEC Campagin
+        - Add Applicants to PEC Campaign
       summary: Endpoint for adding new Applicants to a PEC campaign
       description: Parse data to create new PEC workflows for campaign candidates.
       requestBody:
@@ -131,7 +131,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'  
+                $ref: '#/components/schemas/ErrorResponse'
   /campaign/{campaignId}/{applicantId}:
     parameters:
       - name: campaignId
@@ -212,7 +212,7 @@ components:
         message: "The request payload failed schema validation."
         errorDetailArray:
           - "criminalRecordCheckLevel is required."
-          - "jobLocations must contain at least 1 item."  
+          - "jobLocations must contain at least 1 item."
     SuccessResponseCampaign:
       title: Successful Integration Response
       type: object
@@ -221,13 +221,13 @@ components:
           title: Note
           type: string
           description: Status note regarding the request creation.
-        requestingSystemCampaignbId:
-          title: Requesting System Unique Campagin ID
+        requestingSystemCampaignId:
+          title: Requesting System Unique Campaign ID
           type: string
           description: The unique system identifier of the campaign in the requestors system
           example: asd4-45sd-w4344-wer3
-        pECSystemCampaignbId:
-          title: PEC System Unique Campagin ID
+        pECSystemCampaignId:
+          title: PEC System Unique Campaign ID
           type: string
           description: The unique system identifier of the campaign in the PEC system
           example: asd4-45sd-w4344-wer3
@@ -237,7 +237,7 @@ components:
           description: The name of the organizational cluster the request is coming from.
           example: Unity
         campaignPECStatus:
-          title: Campagin Staus in PEC system
+          title: Campaign Status in PEC system
           type: string
           description: The status of the campaign in the PEC system
           example: active
@@ -249,13 +249,13 @@ components:
           title: Note
           type: string
           description: Status note regarding the request creation.
-        requestingSystemCampaignbId:
-          title: Requesting System Unique Campagin ID
+        requestingSystemCampaignId:
+          title: Requesting System Unique Campaign ID
           type: string
           description: The unique system identifier of the campaign in the requestors system
           example: asd4-45sd-w4344-wer3
-        pECSystemCampaignbId:
-          title: PEC System Unique Campagin ID
+        pECSystemCampaignId:
+          title: PEC System Unique Campaign ID
           type: string
           description: The unique system identifier of the campaign in the PEC system
           example: asd4-45sd-w4344-wer3
@@ -265,7 +265,7 @@ components:
           description: The name of the organizational cluster the request is coming from.
           example: Unity
         campaignPECStatus:
-          title: Campagin Staus in PEC system
+          title: Campaign Status in PEC system
           type: string
           description: The status of the campaign in the PEC system
           example: active
@@ -276,14 +276,14 @@ components:
           items:
             $ref: '#/components/schemas/WorkflowConfirmation'
     newCampaign:
-      title: New Campagin Object
+      title: New Campaign Object
       type: object
       description: The object to be used to create a new campaign in the PEC system
       required:
         - campaignId
         - businessCluster
         - employingDepartment
-        - requestingSystemCampaignbId
+        - requestingSystemCampaignId
         - jobTitle
         - jobLocations
         - caseManagers
@@ -303,11 +303,23 @@ components:
           type: string
           description: The name of the department the position is with.
           example: HMRC
-        requestingSystemCampaignbId:
-          title: Requesting System Unique Campagin ID
+        requestingSystemCampaignId:
+          title: Requesting System Unique Campaign ID
           type: string
           description: The unique system identifier of the campaign in the requestors system
           example: asd4-45sd-w4344-wer3
+        jobTitle:
+          title: Job Title
+          type: string
+          description: The title for the job associated with this campaign.
+          example: "Senior Developer"
+        jobLocations:
+          title: Job Locations
+          type: array
+          description: The list of locations for this role.
+          items:
+            type: string
+          example: ["London", "Manchester"]
         caseManagers:
           title: Case Managers
           type: array
@@ -316,7 +328,7 @@ components:
           items:
             $ref: '#/components/schemas/CaseManager'
         campaignTemplate:
-          title: Campagin Template
+          title: Campaign Template
           description: An id supplied by the requesting system to tell the PEC service which checks are to be performed
           type: string
           example: SEO-SC-1
@@ -349,20 +361,20 @@ components:
           example: "+44 7700 900077"
     newApplicants:
       title: New Applicants Object
-      description: A object housing new applicants to be added to an existing campaign in the PEC system. A new wortk flow will be generated for each applicant
+      description: A object housing new applicants to be added to an existing campaign in the PEC system. A new workflow will be generated for each applicant
       type: object
       required:
-        - requestingSystemCampaignbId
-        - pECSystemCampaignbId
+        - requestingSystemCampaignId
+        - pECSystemCampaignId
         - applicants
       properties:
-        requestingSystemCampaignbId:
-          title: Requesting System Unique Campagin ID
+        requestingSystemCampaignId:
+          title: Requesting System Unique Campaign ID
           type: string
           description: The unique system identifier of the campaign in the requestors system
           example: asd4-45sd-w4344-wer3
-        pECSystemCampaignbId:
-          title: PEC System Unique Campagin ID
+        pECSystemCampaignId:
+          title: PEC System Unique Campaign ID
           type: string
           description: The unique system identifier of the campaign in the PEC system
           example: asd4-45sd-w4344-wer3
