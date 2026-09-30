@@ -39,7 +39,7 @@ graph TD
     FlowEngine -->|Create Check Tasks| TaskMgmt
     FlowEngine -->|Publish Event for Automated Checks| EventBus
     
-    EventBus -.->|Consume Event (CometD/PubSub API)| RPA
+    EventBus -.->|Consume Event(CometD/PubSub API)| RPA
     EventBus -.->|Trigger Async Apex| ExternalServices
     
     ExternalServices <--> ExtAPI
