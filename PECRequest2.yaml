@@ -2,7 +2,7 @@ openapi: 3.0.1
 info:
   title: PEC Workflow and Campagin Initiation
   description: API interaction to generate new PEC campaign, then additional Endpoint to add people
-  version: 0.1
+  version: 0.1.0
 servers:
   - url: https://xxx.production.gov.uk/v2
     description: Production environment
@@ -52,7 +52,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-/campaign/{campaignId}:
+  /campaign/{campaignId}:
     parameters:
       - name: campaignId
         in: path
@@ -132,7 +132,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'  
-/campaign/{campaignId}/{applicantId}:
+  /campaign/{campaignId}/{applicantId}:
     parameters:
       - name: campaignId
         in: path
