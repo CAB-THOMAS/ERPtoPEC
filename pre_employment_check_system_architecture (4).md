@@ -16,7 +16,7 @@ graph TD
 
     %% Core Salesforce Platform
     subgraph Salesforce Platform
-        APIGateway["Apex REST Service<br/>(Endpoints: /campaign, /campaign/{id})"]
+        APIGateway["Apex REST Service<br/>Endpoints: /campaign"]
         ApexEngine["Apex Controllers<br/>Form Schema Merging"]
         FlowEngine["Salesforce Flow / Orchestrator<br/>Workflow Engine"]
         TaskMgmt["Salesforce Tasks / Custom Objects"]
@@ -29,31 +29,33 @@ graph TD
     subgraph External Agents
         RPA["RPA Workers<br/>e.g., UiPath or BluePrism"]
         ExtAPI["External APIs<br/>e.g., Background Check"]
-        ClientSystem["Requesting System<br/>(Client HR System)"]
+        ClientSystem["Requesting System<br/>Client HR System"]
     end
 
-    %% Connections
-    ClientSystem -->|POST /campaign & /campaign/{id}| APIGateway
-    APIGateway -->|Create Campaign & Applicant Records| DB
-    AdminClient -->|Manage Campaigns and Candidates| DB
+    %% Connections - wrapped in quotes to prevent parse errors with curly braces
+    ClientSystem -->|"POST /campaign & /campaign/{id}"| APIGateway
+    APIGateway -->|"Create Campaign & Applicant Records"| DB
+    AdminClient -->|"Manage Campaigns and Candidates"| DB
     
-    CandidatePortal -->|Request Form and Submit JSON| ApexEngine
-    ApexEngine -->|Read Schemas and Save Data| DB
+    CandidatePortal -->|"Request Form and Submit JSON"| ApexEngine
+    ApexEngine -->|"Read Schemas and Save Data"| DB
     
-    DB -->|Record-Triggered Flow on Workflow Creation| FlowEngine
-    FlowEngine -->|Create Check Tasks| TaskMgmt
-    FlowEngine -->|Publish Event for Automated Checks| EventBus
+    DB -->|"Record-Triggered Flow on Workflow Creation"| FlowEngine
+    FlowEngine -->|"Create Check Tasks"| TaskMgmt
+    FlowEngine -->|"Publish Event for Automated Checks"| EventBus
     
     EventBus -.->|"Consume Event via CometD/PubSub"| RPA
-    EventBus -.->|Trigger Async Apex| ExternalServices
+    EventBus -.->|"Trigger Async Apex"| ExternalServices
     
-    ExternalServices -->|API Request| ExtAPI
-    ExtAPI -->|API Response| ExternalServices
-    ExternalServices -->|Update Task via API| TaskMgmt
+    ExternalServices -->|"API Request"| ExtAPI
+    ExtAPI -->|"API Response"| ExternalServices
+    ExternalServices -->|"Update Task via API"| TaskMgmt
     
-    RPA -->|Update Task via REST API| TaskMgmt
+    RPA -->|"Update Task via REST API"| TaskMgmt
     
-    TaskMgmt -->|Read or Write| DB
+    TaskMgmt -->|"Read or Write"| DB
+
+
 ```
 
 ## 2. Dynamic Form Flow & Data Architecture
