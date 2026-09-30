@@ -74,24 +74,25 @@ To make the webform dynamic:
 ```mermaid
 graph LR
     %% Data Flow for Dynamic Forms
-    Check1[Right to Work Check\nNeeds: Passport, DOB]
-    Check2[Credit Check\nNeeds: Address, DOB, SSN]
+    Check1[Check Type 1\nInput_Schema__c]
+    Check2[Check Type 2\nInput_Schema__c]
     
-    Merge[Form Schema Engine\n(Merges & Deduplicates)]
+    Merge[Apex Controller\nMerges & Deduplicates schemas]
     
-    UI[Candidate Portal\nRenders Dynamic Webform]
+    UI[Experience Cloud LWC\nRenders dynamic fields based on Schema]
     
-    Storage[(Candidate Profile\nJSONB Data Store)]
+    Storage[(Candidate__c\nProfile_Data__c: Long Text Area)]
     
-    TaskDist[Workflow Engine\nDistributes Data to Tasks]
+    TaskDist[Salesforce Flow / Apex\nParses JSON for Tasks]
 
     Check1 --> Merge
     Check2 --> Merge
     Merge -->|Unified JSON Schema| UI
-    UI -->|Candidate submits JSON| Storage
+    UI -->|LWC submits JSON string| Storage
     Storage --> TaskDist
-    TaskDist -->|Passport, DOB| RPA_Task[RPA: Right to Work]
-    TaskDist -->|Address, SSN| API_Task[API: Credit Agency]
+    TaskDist -->|Data Subset| EventBus[[Platform Events]]
+    EventBus --> RPA_Task[RPA / External API]
+
 ```
 
 ## 3. Data Models
