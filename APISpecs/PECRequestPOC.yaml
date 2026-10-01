@@ -153,8 +153,8 @@ components:
           title: Note
           type: string
           description: Status note regarding the request creation.
-        requestingSystemCampaignId:
-          title: Requesting System Unique Campaign ID
+        consumerSystemCampaignId:
+          title: Consumer System Unique Campaign ID
           type: string
           description: The unique system identifier of the campaign in the requestors system
           example: asd4-45sd-w4344-wer3
@@ -181,8 +181,8 @@ components:
           title: Note
           type: string
           description: Status note regarding the request creation.
-        requestingSystemCampaignId:
-          title: Requesting System Unique Campaign ID
+        consumerSystemCampaignId:
+          title: Consumer System Unique Campaign ID
           type: string
           description: The unique system identifier of the campaign in the requestors system
           example: asd4-45sd-w4344-wer3
@@ -215,8 +215,8 @@ components:
         - campaignId
         - businessCluster
         - employingDepartment
-        - requestingSystemCampaignId
-        - jobTitle
+        - consumerSystemCampaignId
+        - title
         - crcLocations
         - requestOwners
       properties:
@@ -241,23 +241,23 @@ components:
           type: string
           description: The name of the department the position is with.
           example: HMRC
-        requestingSystemCampaignId:
-          title: Requesting System Unique Campaign ID
+        consumerSystemCampaignId:
+          title: Consumer System Unique Campaign ID
           type: string
           description: The unique system identifier of the campaign in the requestors system
           example: asd4-45sd-w4344-wer3
-        jobTitle:
-          title: Job Title
+        title:
+          title: Title
           type: string
-          description: The title for the job associated with this campaign.
+          description: The title for the position associated with this campaign.
           example: "Senior Developer"
         crcLocations:
-          title: Job Locations
+          title: CRC Locations
           type: array
-          description: The list of locations for this role.
+          description: The list of locations for this role. For the purpose of criminal record checks.
           items:
             type: string
-          example: ["London", "Manchester"]
+          example: ["England", "Scotland"]
         requestOwners:
           title: Case Managers
           type: array
@@ -265,11 +265,6 @@ components:
           minItems: 1
           items:
             $ref: '#/components/schemas/requestOwner'
-        campaignTemplate:
-          title: Campaign Template
-          description: An id supplied by the requesting system to tell the PEC service which checks are to be performed
-          type: string
-          example: SEO-SC-1
         specificCheckOverrides:
           title: Specific Check Overrides (Optional)
           type: array
@@ -302,12 +297,12 @@ components:
       description: A object housing new applicants to be added to an existing campaign in the PEC system. A new workflow will be generated for each applicant
       type: object
       required:
-        - requestingSystemCampaignId
+        - consumerSystemCampaignId
         - pECSystemCampaignId
         - applicants
       properties:
-        requestingSystemCampaignId:
-          title: Requesting System Unique Campaign ID
+        consumerSystemCampaignId:
+          title: Consumer System Unique Campaign ID
           type: string
           description: The unique system identifier of the campaign in the requestors system
           example: asd4-45sd-w4344-wer3
@@ -330,7 +325,7 @@ components:
         - firstName
         - lastName
         - email
-        - clientApplicantId
+        - consumerApplicantId
       properties:
         firstName:
           title: First Name
@@ -355,8 +350,8 @@ components:
           type: string
           format: date
           example: 2017-07-21
-        clientApplicantId:
-          title: Client Applicant ID
+        consumerApplicantId:
+          title: Consumer Applicant ID
           type: string
           description: The unique ID assigned by the consuming source system to identify this applicant.
           example: APP-88291
@@ -364,8 +359,8 @@ components:
       title: Workflow Confirmation Response
       type: object
       properties:
-        clientApplicantId:
-          title: Client Applicant ID
+        consumerApplicantId:
+          title: Consumer Applicant ID
           type: string
           description: The unique ID assigned by the consuming source system.
           example: APP-88291
@@ -393,44 +388,3 @@ components:
           type: string
           description: Used to send a specific modifier or level for the check.
           example: DV
-    CampaignSummary:
-      title: Campaign Summary
-      description: An object containing two strings and one number representing high-level campaign details.
-      type: object
-      properties:
-        campaignStatus:
-          title: Campaign Status
-          type: string
-          description: The current status of the campaign.
-          example: "Active"
-        campaignOwner:
-          title: Campaign Owner
-          type: string
-          description: The department or cluster that owns the campaign.
-          example: "HMRC"
-        applicantCount:
-          title: Applicant Count
-          type: integer
-          description: The total number of applicants currently in the campaign.
-          example: 42
-    ApplicantStatusResponse:
-      title: Applicant Status Response
-      description: An object representing the current status of an applicant's pre-employment checks.
-      type: object
-      properties:
-        applicantId:
-          title: Applicant ID
-          type: string
-          description: The unique identifier of the applicant.
-          example: PEC-12345
-        status:
-          title: Workflow Status
-          type: string
-          description: The current status of the applicant's workflow in the PEC system.
-          example: Pending
-        lastUpdated:
-          title: Last Updated Date
-          type: string
-          format: date-time
-          description: The timestamp when the status was last updated.
-          example: "2026-09-30T10:15:30Z"
