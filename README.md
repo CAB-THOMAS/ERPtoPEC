@@ -1,8 +1,5 @@
 # ERPtoPEC
-Code repository for the API between ERP to PEC
+Code repository for the API to generate a new PEC campaign and also to add new applicants to said campaign
 
-## to run swagger editor
-in vscode open index.html and run the command "npm i -g http-server"
-once installed run "http-server" and select open in browsere
 
 # To open swagger UI [click here](https://cab-thomas.github.io/ERPtoPEC/)

@@ -8,6 +8,9 @@ servers:
     description: Production environment
   - url: https://xxx.test.gov.uk/v2
     description: Testing and sandbox environment
+security:
+  - OAuth2: 
+      - pec:write
 paths:
   /campaign:
     post:
@@ -183,6 +186,15 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 components:
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      description: Modern OAuth2 Client Credentials flow for system-to-system authentication.
+      flows:
+        clientCredentials:
+          tokenUrl: https://auth.production.gov.uk/oauth/token
+          scopes:
+            pec:write: Grants permission to submit PEC requests
   schemas:
     ErrorResponse:
       title: Error Response
@@ -288,8 +300,8 @@ components:
         - jobLocations
         - caseManagers
       properties:
-        campaignId:
-          title: Campaign ID
+        consumerCampaignID:
+          title: Consumer Campaign ID
           type: string
           description: The human readable unique identifier of the recruitment campaign.
           example: CMP12345
@@ -297,7 +309,13 @@ components:
           title: Business Cluster
           type: string
           description: The name of the organizational cluster the request is coming from.
-          example: Unity
+          enum:
+            - Defense
+            - Matrix
+            - Non-Clusterd
+            - Overseas
+            - Synergy
+            - Unity
         employingDepartment:
           title: Employing Department
           type: string
@@ -320,13 +338,13 @@ components:
           items:
             type: string
           example: ["London", "Manchester"]
-        caseManagers:
+        requestOwners:
           title: Case Managers
           type: array
           description: A list of business contacts responsible for managing these active checking cases.
           minItems: 1
           items:
-            $ref: '#/components/schemas/CaseManager'
+            $ref: '#/components/schemas/requestOwner'
         campaignTemplate:
           title: Campaign Template
           description: An id supplied by the requesting system to tell the PEC service which checks are to be performed
@@ -338,8 +356,8 @@ components:
           description: Optional. Specific check requirements to bypass general departmental policies if explicitly needed for this applicant.
           items:
             $ref: '#/components/schemas/CheckOverride'
-    CaseManager:
-      title: Case Manager
+    requestOwner:
+      title: Request Owner
       type: object
       description: The contact details of a person managing these active checking cases.
       required:
