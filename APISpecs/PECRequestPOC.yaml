@@ -55,7 +55,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
-  /campaign/{campaignId}:
+  /campaign/{pECSystemCampaignId}/applicants:
     parameters:
       - name: campaignId
         in: path
@@ -219,6 +219,8 @@ components:
         - title
         - crcLocations
         - requestOwners
+        - crcLevel
+        - nsvLevel
       properties:
         consumerCampaignID:
           title: Consumer Campaign ID
@@ -249,7 +251,7 @@ components:
         title:
           title: Title
           type: string
-          description: The title for the position associated with this campaign.
+          description: The title of the campaign e.g. Contractors BPSS
           example: "Senior Developer"
         crcLocations:
           title: CRC Locations
@@ -263,6 +265,7 @@ components:
           type: string
           description: The level of criminal record check for the campaign
           enum:
+            - None
             - Basic
             - Standard
             - Enhanced
@@ -411,3 +414,7 @@ components:
           type: string
           description: Used to send a specific modifier or level for the check.
           example: DV
+        applicantType:
+          title: Applicant Type
+          type: string
+          description: Used to send a applicant type modifer
