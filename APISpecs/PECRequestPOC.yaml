@@ -63,36 +63,6 @@ paths:
         schema:
           type: string
         description: The unique system identifier of the campaign.
-    get:
-      tags:
-        - Campaign Details
-      summary: Retrieve campaign summary details
-      description: Returns a specific number and two descriptive strings associated with the requested campaign.
-      responses:
-        '200':
-          description: Successfully retrieved the campaign details.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CampaignSummary'
-        '400':
-          description: Payload Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
-          description: Authentication Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Internal Service Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
     post:
       tags:
         - Add Applicants to PEC Campaign
@@ -125,56 +95,6 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '409':
           description: Idempotency Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '500':
-          description: Internal Service Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  /campaign/{campaignId}/{applicantId}:
-    parameters:
-      - name: campaignId
-        in: path
-        required: true
-        schema:
-          type: string
-        description: The unique system identifier of the campaign.
-      - name: applicantId
-        in: path
-        required: true
-        schema:
-          type: string
-        description: The unique identifier of the applicant.
-    get:
-      tags:
-        - Applicant Details
-      summary: Retrieve applicant status
-      description: Returns the current processing status of a specific applicant within a campaign.
-      responses:
-        '200':
-          description: Successfully retrieved the applicant status.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApplicantStatusResponse'
-        '400':
-          description: Payload Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '401':
-          description: Authentication Error
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ErrorResponse'
-        '404':
-          description: Applicant or Campaign Not Found
           content:
             application/json:
               schema:
