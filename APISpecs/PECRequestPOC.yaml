@@ -297,8 +297,8 @@ components:
         - employingDepartment
         - requestingSystemCampaignId
         - jobTitle
-        - jobLocations
-        - caseManagers
+        - crcLocations
+        - requestOwners
       properties:
         consumerCampaignID:
           title: Consumer Campaign ID
@@ -331,7 +331,7 @@ components:
           type: string
           description: The title for the job associated with this campaign.
           example: "Senior Developer"
-        jobLocations:
+        crcLocations:
           title: Job Locations
           type: array
           description: The list of locations for this role.
