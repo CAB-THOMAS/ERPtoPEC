@@ -242,7 +242,10 @@ components:
           title: Employing Department
           type: string
           description: The name of the department the position is with.
-          example: HMRC
+          enum: 
+            - HMRC
+            - Home Office
+            - etc
         consumerSystemCampaignId:
           title: Consumer System Unique Campaign ID
           type: string
@@ -259,7 +262,12 @@ components:
           description: The list of locations for this role. For the purpose of criminal record checks.
           items:
             type: string
-          example: ["England", "Scotland"]
+            enum:
+              - England
+              - Northern Ireland
+              - Scotland
+              - Wales
+              - Overseas
         crcLevel:
           title: CRC Level
           type: string
