@@ -57,7 +57,7 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
   /campaign/{pECSystemCampaignId}/applicants:
     parameters:
-      - name: campaignId
+      - name: pECSystemCampaignId
         in: path
         required: true
         schema:
