@@ -211,7 +211,7 @@ components:
       title: New Campaign Object
       type: object
       description: The object to be used to create a new campaign in the PEC system
-    required:
+      required:
         - consumerCampaignId
         - businessCluster
         - employingDepartment
