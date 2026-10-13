@@ -211,8 +211,8 @@ components:
       title: New Campaign Object
       type: object
       description: The object to be used to create a new campaign in the PEC system
-      required:
-        - campaignId
+    required:
+        - consumerCampaignId
         - businessCluster
         - employingDepartment
         - consumerSystemCampaignId
@@ -222,9 +222,10 @@ components:
         - crcLevel
         - nsvLevel
       properties:
-        consumerCampaignID:
+        consumerCampaignId:
           title: Consumer Campaign ID
           type: string
+          maxLength: 100
           description: The human readable unique identifier of the recruitment campaign.
           example: CMP12345
         businessCluster:
@@ -234,26 +235,25 @@ components:
           enum:
             - Defense
             - Matrix
-            - Non-Clusterd
+            - Non-Clustered # FIXED: Spelling
             - Overseas
             - Synergy
             - Unity
         employingDepartment:
           title: Employing Department
           type: string
-          description: The name of the department the position is with.
-          enum: 
-            - HMRC
-            - Home Office
-            - etc
+          maxLength: 150
+          description: The name of the department the position is with (e.g., HMRC, Home Office).
         consumerSystemCampaignId:
           title: Consumer System Unique Campaign ID
           type: string
+          maxLength: 100
           description: The unique system identifier of the campaign in the requestors system
           example: asd4-45sd-w4344-wer3
         title:
           title: Title
           type: string
+          maxLength: 255 # ENHANCEMENT: Added length validation
           description: The title of the campaign e.g. Contractors BPSS
           example: "Senior Developer"
         crcLocations:
@@ -346,6 +346,8 @@ components:
           title: Applicants
           type: array
           description: An array of applicants requiring pre-employment checks.
+          minItems: 1
+          maxItems: 100
           items:
             $ref: '#/components/schemas/Applicant'
     Applicant:
@@ -374,8 +376,8 @@ components:
         telephoneNumber:
           title: Telephone Number
           type: string
-          description: The applicant's contact telephone number.
-          example: "+44 7700 900123"
+          pattern: '^\+?[1-9]\d{1,14}$' 
+          example: "+447700900123"
         dateOfBirth:
           title: Date of Birth 
           type: string
@@ -386,10 +388,12 @@ components:
           type: string
           description: The unique ID assigned by the consuming source system to identify this applicant.
           example: APP-88291
-        nINO:
-          title: NINO
+        nino:
+          title: National Insurance Number
           type: string
-        crclocation:
+          pattern: '^[A-CEGHJ-PR-TW-Z]{1}[A-CEGHJ-NPR-TW-Z]{1}[0-9]{6}[A-D]{1}$' 
+          example: "QQ123456C"
+        crcLocation:
           title: CRC Location
           description: The partilar location to be used for this applicant during criminal records checks.
           type: string
