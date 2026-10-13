@@ -1,5 +1,6 @@
 ##Conceptual Data model
-```erDiagram
+```mermaid
+erDiagram
     CAMPAIGN {
     }
     APPLICANT {
