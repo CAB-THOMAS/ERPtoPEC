@@ -389,6 +389,16 @@ components:
         nINO:
           title: NINO
           type: string
+        crclocation:
+          title: CRC Location
+          description: The partilar location to be used for this applicant during criminal records checks.
+          type: string
+          enum:
+            - England
+            - Wales
+            - Scotland
+            - Northern Ireland
+            - Overseas
     WorkflowConfirmation:
       title: Workflow Confirmation Response
       type: object
