@@ -1,53 +1,64 @@
 # PEC Workflow and Campaign Initiation API
 
-**Version:** 0.1.0
-
-**Description:** API interaction to generate a new Pre-Employment Check (PEC) campaign, and subsequently add applicants to generate individual checking workflows.
+**Version:** 1.2.0
+**Description:** API interaction to generate new PEC campaigns and add applicants.
+**Contact:** API Support Team (api-support@production.gov.uk)
 
 ---
 
 ## 🌍 Environments
 
 | Environment | Base URL | Description |
-| --- | --- | --- |
-| **Production** | `[https://xxx.production.gov.uk/v2](https://xxx.production.gov.uk/v2)` | Live production environment |
-| **Testing** | `[https://xxx.test.gov.uk/v2](https://xxx.test.gov.uk/v2)` | Sandbox environment for testing and integration |
+| :--- | :--- | :--- |
+| **Production** | `https://xxx.production.gov.uk/v2` | Live production environment |
+| **Testing** | `https://xxx.test.gov.uk/v2` | Testing and sandbox environment |
 
 ## 🔒 Authentication
 
-This API uses **OAuth 2.0 (Client Credentials Flow)** for system-to-system authentication.
+This API uses **OAuth 2.0 (Client Credentials Flow)** for system-to-system authentication. 
 
-* **Token URL:** `[https://auth.production.gov.uk/oauth/token](https://auth.production.gov.uk/oauth/token)`
+* **Token URL:** `https://auth.production.gov.uk/oauth/token`
 * **Required Scope:** `pec:write` (Grants permission to submit PEC requests)
 
 All requests must include an `Authorization: Bearer <token>` header.
+
+## 🔑 Global Headers
+
+| Header | Type | Required | Description |
+| :--- | :--- | :--- | :--- |
+| `Idempotency-Key` | String (UUID) | **Yes** | A unique client-generated string (e.g., a UUID) to prevent duplicate operations on network retries. |
 
 ---
 
 ## 🚀 Endpoints
 
-### 1. Create New PEC Campaign
-
+### 1. Create a New PEC Campaign
 `POST /campaign`
 
-Parses payload data to create a new Pre-Employment Checks (PEC) campaign. This campaign acts as the container for future applicants.
+Initialize a new pre-employment check (PEC) campaign. Must be supplied with an Idempotency-Key for safe retries.
 
 #### Request Body ( `application/json` )
-
-Creates a new campaign object.
+Creates a new campaign object. 
 
 **Example Payload:**
-
 ```json
 {
   "consumerCampaignId": "CMP12345",
-  "businessCluster": "Unity",
-  "employingDepartment": "Home Office",
-  "consumerSystemCampaignId": "asd4-45sd-w4344-wer3",
-  "title": "Senior Developer",
-  "crcLocations": ["England", "Wales"],
-  "crcLevel": "Basic",
-  "nsvLevel": "SC",
+  "consumerSystemCampaignId": "req-1234-abcd",
+  "ssfgCluster": "Unity",
+  "employingDepartment": "Ministry of Defence",
+  "title": "Senior Developer Recruitment",
+  "csrfApproach": "External",
+  "crcRequirement": {
+    "isCrcRequired": true,
+    "jurisdiction": "Both",
+    "scotlandCrcType": "PVG",
+    "otherJurisdictionCrcLevel": "Enhanced"
+  },
+  "nsvRequirement": {
+    "isNsvRequired": true,
+    "level": "SC"
+  },
   "requestOwners": [
     {
       "name": "Jane Doe",
@@ -56,138 +67,128 @@ Creates a new campaign object.
     }
   ]
 }
-
 ```
 
 #### Responses
 
 | Status | Meaning | Response Schema |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | **201** | **Created.** Successfully created the PEC campaign. | `SuccessResponseCampaign` |
-| **400** | **Bad Request.** Payload failed schema validation. | `ErrorResponse` |
-| **401** | **Unauthorized.** Authentication failure or missing scope. | `ErrorResponse` |
-| **409** | **Conflict.** Idempotency error (campaign already exists). | `ErrorResponse` |
-| **500** | **Server Error.** Internal service failure. | `ErrorResponse` |
+| **400** | **Bad Request.** Validation Error. | `ProblemDetails` |
+| **401** | **Unauthorized.** Authentication failure. | `ProblemDetails` |
+| **409** | **Conflict.** Idempotency Error. | `ProblemDetails` |
+| **500** | **Server Error.** Internal Server Error. | `ProblemDetails` |
 
 ---
 
-### 2. Add Applicants to PEC Campaign
+### 2. Add Applicants to a PEC Campaign
+`POST /campaign/{pecSystemCampaignId}/applicants`
 
-`POST /campaign/{pECSystemCampaignId}/applicants`
-
-Parses data to create new PEC workflows for individual candidates under a specific, existing campaign.
+Creates new PEC workflows for campaign candidates.
 
 #### Path Parameters
-
-* `pECSystemCampaignId` *(string, required)*: The unique system identifier of the campaign within the PEC system.
+* `pecSystemCampaignId` *(string, required)*: The unique system identifier of the campaign.
 
 #### Request Body ( `application/json` )
-
-Accepts an array of candidates (Maximum of 100 per request to prevent payload bloat).
+Accepts an array of candidates to process.
 
 **Example Payload:**
-
 ```json
 {
-  "consumerSystemCampaignId": "asd4-45sd-w4344-wer3",
-  "pECSystemCampaignId": "pec-sys-9999",
+  "consumerSystemCampaignId": "req-1234-abcd",
+  "pecSystemCampaignId": "pec-sys-9999",
   "applicants": [
     {
+      "consumerApplicantId": "APP-001",
       "firstName": "Robert",
       "lastName": "Builder",
       "email": "bob@builder.com",
       "telephoneNumber": "+447700900123",
-      "dateOfBirth": "2017-07-21",
-      "consumerApplicantId": "APP-88291",
-      "nino": "QQ123456C",
-      "crcLocation": "England"
+      "dateOfBirth": "21-07-2017",
+      "nino": "AB 12 34 56 C",
+      "crcLocation": "England",
+      "applicantType": "External"
     }
   ]
 }
-
 ```
 
 #### Responses
 
 | Status | Meaning | Response Schema |
-| --- | --- | --- |
-| **201** | **Created.** Successfully created applicant PEC workflows. | `SuccessResponseApplicants` |
-| **400** | **Bad Request.** Payload failed schema validation. | `ErrorResponse` |
-| **401** | **Unauthorized.** Authentication failure or missing scope. | `ErrorResponse` |
-| **409** | **Conflict.** Idempotency error. | `ErrorResponse` |
-| **500** | **Server Error.** Internal service failure. | `ErrorResponse` |
+| :--- | :--- | :--- |
+| **201** | **Created.** Successfully created the PEC workflows. | `SuccessResponseApplicants` |
+| **400** | **Bad Request.** Validation Error. | `ProblemDetails` |
+| **401** | **Unauthorized.** Authentication failure. | `ProblemDetails` |
+| **409** | **Conflict.** Applicant already exists. | `ProblemDetails` |
+| **500** | **Server Error.** Internal Server Error. | `ProblemDetails` |
 
 ---
 
 ## 📦 Data Models
 
 ### NewCampaign
-
 | Property | Type | Constraints | Description |
-| --- | --- | --- | --- |
-| `consumerCampaignId` | String | Required, Max: 100 | Human-readable unique ID of the recruitment campaign. |
-| `businessCluster` | String | Required, Enum | The organizational cluster. Valid: `Defense`, `Matrix`, `Non-Clustered`, `Overseas`, `Synergy`, `Unity`. |
-| `employingDepartment` | String | Required, Max: 150 | Department name (e.g., HMRC, Home Office). |
-| `consumerSystemCampaignId` | String | Required, Max: 100 | Unique system identifier in the requestor's system. |
-| `title` | String | Required, Max: 255 | Campaign title (e.g., "Senior Developer"). |
-| `crcLocations` | Array[String] | Required | Allowed: `England`, `Northern Ireland`, `Scotland`, `Wales`, `Overseas`. |
-| `crcLevel` | String | Required, Enum | Criminal Record Check level: `None`, `Basic`, `Standard`, `Enhanced`. |
-| `nsvLevel` | String | Required, Enum | National Security Vetting level: `None`, `AC`, `CTC`, `SC`, `eSC`, `DV`, `eDV`. |
-| `requestOwners` | Array | Required, Min: 1 | Array of `RequestOwner` objects managing the cases. |
-| `specificCheckOverrides` | Array | Optional | Array of `CheckOverride` objects. |
+| :--- | :--- | :--- | :--- |
+| `consumerCampaignId` | String | Required, Max Length: 100 | Unique ID in the consumer's system. |
+| `consumerSystemCampaignId`| String | Required, Max Length: 100 | Unique system identifier in the consumer's system. |
+| `ssfgCluster` | String | Required, Enum | Allowed: `Defense`, `Matrix`, `Non-Clustered`, `Overseas`, `Synergy`, `Unity`. |
+| `employingDepartment` | String | Required, Enum | E.g., `Ministry of Defence`, `Home Office`, `HM Revenue and Customs`. |
+| `title` | String | Required, Max Length: 255 | Title of the campaign. |
+| `csrfApproach` | String | Required, Enum | Allowed: `Internal`, `Across Government`, `External`, `None`. |
+| `crcRequirement` | Object | Required | Defines Criminal Record Check logic (see `CRCRequirement`). |
+| `nsvRequirement` | Object | Required | Defines National Security Vetting logic (see `NSVRequirement`). |
+| `requestOwners` | Array | Required, Min Items: 1 | Array of `RequestOwner` objects. |
+| `specificCheckOverrides`| Object | Optional | Overrides grouped by `Internal`, `External`, `Other Government Department`, `Non-Departmental Public Body`. |
+
+### CRCRequirement (Conditional Logic)
+| Property | Type | Description | Required When |
+| :--- | :--- | :--- | :--- |
+| `isCrcRequired` | Boolean | True if a CRC is required. | Always Required. |
+| `jurisdiction` | String | Options: `Scotland Only`, `Other Jurisdiction Only`, `Both`. | `isCrcRequired` is true. |
+| `scotlandCrcType` | String | Options: `Level 1`, `Level 2`, `Level 2 with barred list`, `PVG`. | `jurisdiction` is `Scotland Only` or `Both`. |
+| `otherJurisdictionCrcLevel`| String | Options: `Basic`, `Standard`, `Enhanced`, `Enhanced with barred list`. | `jurisdiction` is `Other Jurisdiction Only` or `Both`. |
+
+### NSVRequirement (Conditional Logic)
+| Property | Type | Description | Required When |
+| :--- | :--- | :--- | :--- |
+| `isNsvRequired` | Boolean | True if National Security Vetting is required. | Always Required. |
+| `level` | String | Options: `AC`, `CTC`, `SC`, `eSC`, `DV`, `eDV`. | `isNsvRequired` is true. |
 
 ### Applicant
-
 | Property | Type | Constraints | Description |
-| --- | --- | --- | --- |
-| `firstName` | String | Required, Max: 100 | Applicant's given name. |
-| `lastName` | String | Required, Max: 100 | Applicant's family name. |
+| :--- | :--- | :--- | :--- |
+| `consumerApplicantId` | String | Required | Unique ID assigned by the consuming source system. |
+| `firstName` | String | Required | Applicant's given name. |
+| `lastName` | String | Required | Applicant's family name. |
 | `email` | String | Required, Format: email | Applicant's email address. |
-| `consumerApplicantId` | String | Required, Max: 100 | Unique ID assigned by the consuming source system. |
-| `telephoneNumber` | String | Optional, Regex | Contact number (E.164 format: `^\+?[1-9]\d{1,14}$`). |
-| `dateOfBirth` | String | Optional, Format: date | Date of birth (YYYY-MM-DD). |
-| `nino` | String | Optional, Regex | UK National Insurance Number (`^[A-CEGHJ-PR-TW-Z]{1}[A-CEGHJ-NPR-TW-Z]{1}[0-9]{6}[A-D]{1}$`). |
-| `crcLocation` | String | Optional, Enum | The specific location for this applicant's CRC (`England`, `Wales`, `Scotland`, `Northern Ireland`, `Overseas`). |
-
-### RequestOwner
-
-| Property | Type | Constraints | Description |
-| --- | --- | --- | --- |
-| `name` | String | Required | Full name of the case manager. |
-| `email` | String | Required, Format: email | Email address of the case manager. |
-| `phoneNumber` | String | Optional | Contact phone number. |
+| `telephoneNumber` | String | Optional, Regex | Contact number (`^\+?[1-9]\d{1,14}$`). |
+| `dateOfBirth` | String | Optional, Regex | Date of birth (`^\d{2}-\d{2}-\d{4}$`). |
+| `nino` | String | Optional, Regex | National Insurance Number formatted with spaces (e.g., `AB 12 34 56 C`). |
+| `crcLocation` | String | Optional, Enum | Allowed: `England`, `Wales`, `Scotland`, `Northern Ireland`. |
+| `applicantType` | String | Optional, Enum | Allowed: `Internal`, `External`, `Other Government Department`, `Non-Departmental Public Body`. |
 
 ### SuccessResponseCampaign
-
 | Property | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
+| `consumerSystemCampaignId`| String | Unique system identifier in the requestor's system. |
+| `pecSystemCampaignId` | String | Unique system identifier of the campaign generated in the PEC system. |
 | `message` | String | Status note regarding the request creation. |
-| `consumerSystemCampaignId` | String | Unique system identifier in the requestor's system. |
-| `pECSystemCampaignId` | String | Unique system identifier of the campaign generated in the PEC system. |
-| `businessCluster` | String | Organizational cluster. |
-| `campaignPECStatus` | String | Status of the campaign in the PEC system (e.g., `active`). |
+| `ssfgCluster` | String | The name of the organizational cluster. |
+| `campaignPECStatus` | String | Status of the campaign in the PEC system. |
 
 ### SuccessResponseApplicants
-
 Extends `SuccessResponseCampaign` with an array of created workflows.
-
 | Property | Type | Description |
-| --- | --- | --- |
+| :--- | :--- | :--- |
 | `workflowConfirmations` | Array | A list of `WorkflowConfirmation` objects detailing candidate statuses. |
 
-### WorkflowConfirmation
-
+### ProblemDetails (RFC 7807)
 | Property | Type | Description |
-| --- | --- | --- |
-| `consumerApplicantId` | String | The unique ID assigned by the consuming source system. |
-| `pECApplicantId` | String | The unique ID generated by the PEC provider for this candidate. |
-| `workflowStatus` | String | Current status of the created workflow (e.g., `Pending`). |
-
-### ErrorResponse
-
-| Property | Type | Description |
-| --- | --- | --- |
-| `errorCode` | Integer | Numeric HTTP error code (e.g., `400`). |
-| `title` | String | Short title of the error (e.g., `Validation Error`). |
-| `message` | String | Detailed description of the error. |
-| `errorDetailArray` | Array[String] | List of specific validation failures or detailed error messages. |
+| :--- | :--- | :--- |
+| `type` | String (URI) | A URI reference that identifies the problem type. |
+| `title` | String | A short, human-readable summary of the problem type. |
+| `status` | Integer | The HTTP status code. |
+| `detail` | String | A human-readable explanation specific to this occurrence. |
+| `instance` | String (URI) | A URI reference identifying the specific occurrence of the problem. |
+| `errors` | Array[String]| Specific validation errors (e.g., failed field rules). |
