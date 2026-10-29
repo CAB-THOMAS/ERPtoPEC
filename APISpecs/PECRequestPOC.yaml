@@ -1,79 +1,88 @@
-openapi: 3.0.1
+openapi: 3.1.0
 info:
-  title: PEC Workflow and Campaign Initiation
-  description: API interaction to generate new PEC campaign, then additional Endpoint to add people
-  version: 0.1.0
+  title: PEC Initiate Checks
+  description: API interaction to generate new PEC campaigns and add applicants.
+  version: 1.2.0
+  contact:
+    name: API Support Team
+    email: api-support@production.gov.uk
 servers:
   - url: https://xxx.production.gov.uk/v2
     description: Production environment
   - url: https://xxx.test.gov.uk/v2
     description: Testing and sandbox environment
+
 security:
   - OAuth2: 
       - pec:write
+
 paths:
   /campaign:
     post:
       tags:
-        - Create New PEC Campaign
-      summary: Endpoint for creating new campaigns in the PEC system
-      description: Parse data to create new PEC campaign for campaign candidates.
+        - Campaigns
+      summary: Create a new PEC campaign
+      description: Initialize a new pre-employment check (PEC) campaign. Must be supplied with an Idempotency-Key for safe retries.
+      parameters:
+        - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
         required: true
         content:
           application/json:
             schema: 
-              $ref: '#/components/schemas/newCampaign'
+              $ref: '#/components/schemas/NewCampaign'
       responses:
         '201':
-          description: Successfully created the PEC workflows.
+          description: Successfully created the PEC campaign.
           content:
             application/json:
               schema:
                 $ref: '#/components/schemas/SuccessResponseCampaign'
         '400':
-          description: Payload Error
+          description: Validation Error
           content:
-            application/json:
+            application/problem+json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ProblemDetails'
         '401':
-          description: Authentication Error
+          description: Unauthorized
           content:
-            application/json:
+            application/problem+json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ProblemDetails'
         '409':
-          description: Idempotency Error
+          description: Conflict / Idempotency Error
           content:
-            application/json:
+            application/problem+json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ProblemDetails'
         '500':
-          description: Internal Service Error
+          description: Internal Server Error
           content:
-            application/json:
+            application/problem+json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
-  /campaign/{pECSystemCampaignId}/applicants:
-    parameters:
-      - name: pECSystemCampaignId
-        in: path
-        required: true
-        schema:
-          type: string
-        description: The unique system identifier of the campaign.
+                $ref: '#/components/schemas/ProblemDetails'
+
+  /campaign/{pecSystemCampaignId}/applicants:
     post:
       tags:
-        - Add Applicants to PEC Campaign
-      summary: Endpoint for adding new Applicants to a PEC campaign
-      description: Parse data to create new PEC workflows for campaign candidates.
+        - Applicants
+      summary: Add new Applicants to a PEC campaign
+      description: Creates new PEC workflows for campaign candidates.
+      parameters:
+        - name: pecSystemCampaignId
+          in: path
+          required: true
+          description: The unique system identifier of the campaign.
+          schema:
+            type: string
+        - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
         required: true
         content:
           application/json:
             schema: 
-              $ref: '#/components/schemas/newApplicants'
+              $ref: '#/components/schemas/NewApplicants'
       responses:
         '201':
           description: Successfully created the PEC workflows.
@@ -82,29 +91,30 @@ paths:
               schema:
                 $ref: '#/components/schemas/SuccessResponseApplicants'
         '400':
-          description: Payload Error
+          description: Validation Error
           content:
-            application/json:
+            application/problem+json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ProblemDetails'
         '401':
-          description: Authentication Error
+          description: Unauthorized
           content:
-            application/json:
+            application/problem+json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ProblemDetails'
         '409':
-          description: Idempotency Error
+          description: Conflict / Applicant already exists
           content:
-            application/json:
+            application/problem+json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ProblemDetails'
         '500':
-          description: Internal Service Error
+          description: Internal Server Error
           content:
-            application/json:
+            application/problem+json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: '#/components/schemas/ProblemDetails'
+
 components:
   securitySchemes:
     OAuth2:
@@ -115,328 +125,337 @@ components:
           tokenUrl: https://auth.production.gov.uk/oauth/token
           scopes:
             pec:write: Grants permission to submit PEC requests
+
+  parameters:
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: A unique client-generated string (e.g., a UUID) to prevent duplicate operations on network retries.
+      schema:
+        type: string
+        format: uuid
+
   schemas:
-    ErrorResponse:
-      title: Error Response
+    ProblemDetails:
+      title: Problem Details (RFC 7807)
       type: object
+      description: A machine-readable format for specifying errors in HTTP API responses.
+      required:
+        - type
+        - title
+        - status
       properties:
-        errorCode:
-          title: Error Code
-          type: integer
-          description: The numeric error code to pass back to the consumer.
+        type:
+          type: string
+          format: uri
+          description: A URI reference that identifies the problem type.
+          default: "about:blank"
         title:
-          title: Error Title
           type: string
-          description: The title of the error.
-        message:
-          title: Error Message
+          description: A short, human-readable summary of the problem type.
+        status:
+          type: integer
+          format: int32
+          description: The HTTP status code.
+        detail:
           type: string
-          description: A detailed description of the error.
-        errorDetailArray:
-          title: Error Detail Array
+          description: A human-readable explanation specific to this occurrence of the problem.
+        instance:
+          type: string
+          format: uri
+          description: A URI reference that identifies the specific occurrence of the problem.
+        errors:
           type: array
-          description: An array containing any extra details of the error, for example field names.
+          description: Specific validation errors (e.g., failed field rules).
           items:
             type: string
-      example:
-        errorCode: 400
-        title: "Validation Error"
-        message: "The request payload failed schema validation."
-        errorDetailArray:
-          - "criminalRecordCheckLevel is required."
-          - "jobLocations must contain at least 1 item."
+      examples:
+        - type: "https://example.gov.uk/probs/validation-error"
+          title: "Validation Error"
+          status: 400
+          detail: "The request payload failed schema validation."
+          errors:
+            - "nsvRequirement.level is required when isNsvRequired is true."
+
     SuccessResponseCampaign:
-      title: Successful Integration Response
+      title: Campaign Successfully created
       type: object
       properties:
+        consumerSystemCampaignId:
+          type: string
+          description: The unique system identifier of the campaign in the requestors system.
+        pecSystemCampaignId:
+          type: string
+          description: The unique system identifier of the campaign in the PEC system.
         message:
-          title: Note
           type: string
           description: Status note regarding the request creation.
-        consumerSystemCampaignId:
-          title: Consumer System Unique Campaign ID
-          type: string
-          description: The unique system identifier of the campaign in the requestors system
-          example: asd4-45sd-w4344-wer3
-        pECSystemCampaignId:
-          title: PEC System Unique Campaign ID
-          type: string
-          description: The unique system identifier of the campaign in the PEC system
-          example: asd4-45sd-w4344-wer3
-        businessCluster:
-          title: Business Cluster
+        ssfgCluster:
           type: string
           description: The name of the organizational cluster the request is coming from.
-          example: Unity
         campaignPECStatus:
-          title: Campaign Status in PEC system
           type: string
-          description: The status of the campaign in the PEC system
-          example: active
+          description: The status of the campaign in the PEC system.
+      examples:
+        - consumerSystemCampaignId: req-1234-abcd
+          pecSystemCampaignId: pec-9876-wxyz
+          message: "Campaign initialized successfully"
+          ssfgCluster: Unity
+          campaignPECStatus: active
+
     SuccessResponseApplicants:
-      title: Successful Integration Response
+      title: Applicants Successfully created
       type: object
       properties:
-        message:
-          title: Note
-          type: string
-          description: Status note regarding the request creation.
         consumerSystemCampaignId:
-          title: Consumer System Unique Campaign ID
           type: string
-          description: The unique system identifier of the campaign in the requestors system
-          example: asd4-45sd-w4344-wer3
-        pECSystemCampaignId:
-          title: PEC System Unique Campaign ID
+        pecSystemCampaignId:
           type: string
-          description: The unique system identifier of the campaign in the PEC system
-          example: asd4-45sd-w4344-wer3
-        businessCluster:
-          title: Business Cluster
+        message:
           type: string
-          description: The name of the organizational cluster the request is coming from.
-          example: Unity
+        ssfgCluster:
+          type: string
         campaignPECStatus:
-          title: Campaign Status in PEC system
           type: string
-          description: The status of the campaign in the PEC system
-          example: active
         workflowConfirmations:
-          title: PEC Workflow Confirmations
           type: array
-          description: The statuses and identifiers of the newly created PEC workflows.
           items:
             $ref: '#/components/schemas/WorkflowConfirmation'
-    newCampaign:
+            
+    NewCampaign:
       title: New Campaign Object
       type: object
-      description: The object to be used to create a new campaign in the PEC system
       required:
         - consumerCampaignId
-        - businessCluster
-        - employingDepartment
         - consumerSystemCampaignId
+        - ssfgCluster
+        - employingDepartment
         - title
-        - crcLocations
+        - csrfApproach
+        - crcRequirement
+        - nsvRequirement
         - requestOwners
-        - crcLevel
-        - nsvLevel
       properties:
         consumerCampaignId:
-          title: Consumer Campaign ID
           type: string
           maxLength: 100
-          description: The human readable unique identifier of the recruitment campaign.
-          example: CMP12345
-        businessCluster:
-          title: Business Cluster
-          type: string
-          description: The name of the organizational cluster the request is coming from.
-          enum:
-            - Defense
-            - Matrix
-            - Non-Clustered # FIXED: Spelling
-            - Overseas
-            - Synergy
-            - Unity
-        employingDepartment:
-          title: Employing Department
-          type: string
-          maxLength: 150
-          description: The name of the department the position is with (e.g., HMRC, Home Office).
         consumerSystemCampaignId:
-          title: Consumer System Unique Campaign ID
           type: string
           maxLength: 100
-          description: The unique system identifier of the campaign in the requestors system
-          example: asd4-45sd-w4344-wer3
+        ssfgCluster:
+          type: string
+          enum: [Defense, Matrix, Non-Clustered, Overseas, Synergy, Unity]
+        employingDepartment:
+          type: string
+          enum: [Ministry of Defence, Home Office, HM Revenue and Customs, Department for Work and Pensions, Cabinet Office, "Foreign, Commonwealth & Development Office"]
         title:
-          title: Title
           type: string
-          maxLength: 255 # ENHANCEMENT: Added length validation
-          description: The title of the campaign e.g. Contractors BPSS
-          example: "Senior Developer"
-        crcLocations:
-          title: CRC Locations
-          type: array
-          description: The list of locations for this role. For the purpose of criminal record checks.
-          items:
-            type: string
-            enum:
-              - England
-              - Northern Ireland
-              - Scotland
-              - Wales
-              - Overseas
-        crcLevel:
-          title: CRC Level
+          maxLength: 255 
+        csrfApproach:
           type: string
-          description: The level of criminal record check for the campaign
-          enum:
-            - None
-            - Basic
-            - Standard
-            - Enhanced
-        nsvLevel:
-          title: NSV Level
-          type: string
-          description: The level of vetting record check for the campaign
-          enum:
-            - None
-            - AC
-            - CTC
-            - SC
-            - eSC
-            - DV
-            - eDV
+          enum: [Internal, Across Government, External, None]
+        crcRequirement:
+          $ref: '#/components/schemas/CRCRequirement'
+        nsvRequirement:
+          $ref: '#/components/schemas/NSVRequirement'
         requestOwners:
-          title: Case Managers
           type: array
-          description: A list of business contacts responsible for managing these active checking cases.
           minItems: 1
           items:
-            $ref: '#/components/schemas/requestOwner'
+            $ref: '#/components/schemas/RequestOwner'
         specificCheckOverrides:
-          title: Specific Check Overrides (Optional)
-          type: array
-          description: Optional. Specific check requirements to bypass general departmental policies if explicitly needed for this applicant.
-          items:
-            $ref: '#/components/schemas/CheckOverride'
-    requestOwner:
+          type: object
+          properties:
+            Internal:
+              type: array
+              items: { $ref: '#/components/schemas/CheckTypeEnum' }
+            External:
+              type: array
+              items: { $ref: '#/components/schemas/CheckTypeEnum' }
+            Other Government Department:
+              type: array
+              items: { $ref: '#/components/schemas/CheckTypeEnum' }
+            Non-Departmental Public Body:
+              type: array
+              items: { $ref: '#/components/schemas/CheckTypeEnum' }
+      examples:
+        - consumerCampaignId: CMP12345
+          consumerSystemCampaignId: req-1234-abcd
+          ssfgCluster: Unity
+          employingDepartment: Ministry of Defence
+          title: "Senior Developer Recruitment"
+          csrfApproach: External
+          crcRequirement:
+            isCrcRequired: true
+            jurisdiction: Both
+            scotlandCrcType: PVG
+            otherJurisdictionCrcLevel: Enhanced
+          nsvRequirement:
+            isNsvRequired: true
+            level: SC
+          requestOwners:
+            - name: Jane Doe
+              email: jane.doe@gov.uk
+              phoneNumber: "+44 7700 900077"
+
+    CRCRequirement:
+      title: CRC Requirement
+      description: Dynamic schema that requires specific fields based on jurisdiction choices.
+      type: object
+      required:
+        - isCrcRequired
+      properties:
+        isCrcRequired:
+          type: boolean
+          description: Set to true if a CRC is required.
+        jurisdiction:
+          type: string
+          enum: ["Scotland Only", "Other Jurisdiction Only", "Both"]
+        scotlandCrcType:
+          type: string
+          enum: ["Level 1", "Level 2", "Level 2 with barred list", "PVG"]
+        otherJurisdictionCrcLevel:
+          type: string
+          enum: ["Basic", "Standard", "Enhanced", "Enhanced with barred list"]
+      allOf:
+        - if:
+            properties:
+              isCrcRequired:
+                const: true
+          then:
+            required: [jurisdiction]
+        - if:
+            properties:
+              jurisdiction:
+                enum: ["Scotland Only", "Both"]
+          then:
+            required: [scotlandCrcType]
+        - if:
+            properties:
+              jurisdiction:
+                enum: ["Other Jurisdiction Only", "Both"]
+          then:
+            required: [otherJurisdictionCrcLevel]
+
+    NSVRequirement:
+      title: NSV Requirement
+      description: Defines whether National Security Vetting is required, and the corresponding level.
+      type: object
+      required:
+        - isNsvRequired
+      properties:
+        isNsvRequired:
+          type: boolean
+          description: Set to true if a National Security Vetting check is required.
+        level:
+          type: string
+          description: The level of vetting record check required.
+          enum: [AC, CTC, SC, eSC, DV, eDV]
+      allOf:
+        - if:
+            properties:
+              isNsvRequired:
+                const: true
+          then:
+            required: [level]
+
+    RequestOwner:
       title: Request Owner
       type: object
-      description: The contact details of a person managing these active checking cases.
-      required:
-        - name
-        - email
+      required: [name, email]
       properties:
         name:
-          title: Name
           type: string
-          example: Jane Doe
         email:
-          title: Email
           type: string
           format: email
-          example: jane.doe@gov.uk
+          minLength: 3
+          maxLength: 320
         phoneNumber:
-          title: Phone Number
           type: string
-          example: "+44 7700 900077"
-    newApplicants:
+          minLength: 10
+          maxLength: 16
+      examples:
+        - name: Jane Doe
+          email: jane.doe@gov.uk
+          phoneNumber: "+44 7700 900077"
+
+    NewApplicants:
       title: New Applicants Object
-      description: A object housing new applicants to be added to an existing campaign in the PEC system. A new workflow will be generated for each applicant
       type: object
       required:
         - consumerSystemCampaignId
-        - pECSystemCampaignId
+        - pecSystemCampaignId
         - applicants
       properties:
         consumerSystemCampaignId:
-          title: Consumer System Unique Campaign ID
           type: string
-          description: The unique system identifier of the campaign in the requestors system
-          example: asd4-45sd-w4344-wer3
-        pECSystemCampaignId:
-          title: PEC System Unique Campaign ID
+        pecSystemCampaignId:
           type: string
-          description: The unique system identifier of the campaign in the PEC system
-          example: asd4-45sd-w4344-wer3
         applicants:
-          title: Applicants
           type: array
-          description: An array of applicants requiring pre-employment checks.
           minItems: 1
           maxItems: 100
           items:
             $ref: '#/components/schemas/Applicant'
+
     Applicant:
       title: Applicant Object
-      description: An object representing a single applicant to be processed by the PEC system
       type: object
-      required:
-        - firstName
-        - lastName
-        - email
-        - consumerApplicantId
+      required: [consumerApplicantId, firstName, lastName, email]
       properties:
+        consumerApplicantId:
+          type: string
         firstName:
-          title: First Name
           type: string
-          example: Robert
         lastName: 
-          title: Last Name
           type: string
-          example: Builder
         email:
-          title: Email Address
           type: string
           format: email
-          example: bob@builder.com
+          minLength: 3
+          maxLength: 320
         telephoneNumber:
-          title: Telephone Number
           type: string
           pattern: '^\+?[1-9]\d{1,14}$' 
-          example: "+447700900123"
+          minLength: 10
+          maxLength: 16
         dateOfBirth:
-          title: Date of Birth 
           type: string
-          format: date
-          example: 2017-07-21
-        consumerApplicantId:
-          title: Consumer Applicant ID
-          type: string
-          description: The unique ID assigned by the consuming source system to identify this applicant.
-          example: APP-88291
+          pattern: '^\d{2}-\d{2}-\d{4}$'
+          minLength: 10
+          maxLength: 10
         nino:
-          title: National Insurance Number
           type: string
-          pattern: '^[A-CEGHJ-PR-TW-Z]{1}[A-CEGHJ-NPR-TW-Z]{1}[0-9]{6}[A-D]{1}$' 
-          example: "QQ123456C"
+          pattern: '^[A-CEGHJ-PR-TW-Z]{1}[A-CEGHJ-NPR-TW-Z]{1} \d{2} \d{2} \d{2} [A-D]{1}$' 
+          minLength: 13
+          maxLength: 13
         crcLocation:
-          title: CRC Location
-          description: The partilar location to be used for this applicant during criminal records checks.
           type: string
-          enum:
-            - England
-            - Wales
-            - Scotland
-            - Northern Ireland
-            - Overseas
+          enum: [England, Wales, Scotland, Northern Ireland]
+        applicantType:
+          type: string
+          enum: [Internal, External, Other Government Department, Non-Departmental Public Body]
+
     WorkflowConfirmation:
       title: Workflow Confirmation Response
       type: object
       properties:
         consumerApplicantId:
-          title: Consumer Applicant ID
           type: string
-          description: The unique ID assigned by the consuming source system.
-          example: APP-88291
-        pECApplicantId:
-          title: Provider Applicant ID
+        pecApplicantId:
           type: string
-          description: The unique identifier generated by the service provider for this candidate.
-          example: PEC-12345
         workflowStatus:
-          title: Workflow Status
           type: string
-          description: The current status of the created PEC workflow.
-          example: Pending
-    CheckOverride:
-      title: Check Override
-      type: object
-      properties:
-        checkType:
-          title: Check Type
-          type: string
-          description: The explicit type of the check required.
-          example: UKSV
-        checkLevel:
-          title: Check Level
-          type: string
-          description: Used to send a specific modifier or level for the check.
-          example: DV
-        applicantType:
-          title: Applicant Type
-          type: string
-          description: Used to send a applicant type modifer
+
+    CheckTypeEnum:
+      title: Check Type
+      type: string
+      enum:
+        - Employment History
+        - Criminal Record Check
+        - Right to work
+        - Social Media
+        - Internal Fraud
+        - Overseas
