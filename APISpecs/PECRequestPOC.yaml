@@ -2,10 +2,10 @@ openapi: 3.1.0
 info:
   title: PEC Initiate Checks
   description: API interaction to generate new PEC campaigns and add applicants.
-  version: 1.2.0
+  version: 1.3.0
   contact:
     name: API Support Team
-    email: api-support@production.gov.uk
+    email: centralrecruitproj@cabinetoffice.gov.uk
 servers:
   - url: https://xxx.production.gov.uk/v2
     description: Production environment
@@ -240,17 +240,22 @@ components:
         consumerCampaignId:
           type: string
           maxLength: 100
+          description: The human readable campagin ID from the consumer system
         consumerSystemCampaignId:
           type: string
           maxLength: 100
+          description: The guuid for the campagin in the consumer system
         ssfgCluster:
           type: string
+          description: The cluster from which the request is coming from
           enum: [Defense, Matrix, Non-Clustered, Overseas, Synergy, Unity]
         employingDepartment:
           type: string
+          description: The employing department for the campagin
           enum: [Ministry of Defence, Home Office, HM Revenue and Customs, Department for Work and Pensions, Cabinet Office, "Foreign, Commonwealth & Development Office"]
         title:
           type: string
+          description: Campaign Title
           maxLength: 255 
         csrfApproach:
           type: string
@@ -265,20 +270,9 @@ components:
           items:
             $ref: '#/components/schemas/RequestOwner'
         specificCheckOverrides:
-          type: object
-          properties:
-            Internal:
-              type: array
-              items: { $ref: '#/components/schemas/CheckTypeEnum' }
-            External:
-              type: array
-              items: { $ref: '#/components/schemas/CheckTypeEnum' }
-            Other Government Department:
-              type: array
-              items: { $ref: '#/components/schemas/CheckTypeEnum' }
-            Non-Departmental Public Body:
-              type: array
-              items: { $ref: '#/components/schemas/CheckTypeEnum' }
+          type: array
+          items: 
+            $ref: '#/components/schemas/specificCheckOverridesObject'
       examples:
         - consumerCampaignId: CMP12345
           consumerSystemCampaignId: req-1234-abcd
@@ -351,7 +345,7 @@ components:
         level:
           type: string
           description: The level of vetting record check required.
-          enum: [AC, CTC, SC, eSC, DV, eDV]
+          enum: [CTC, SC, DV, eDV]
       allOf:
         - if:
             properties:
@@ -363,27 +357,35 @@ components:
     RequestOwner:
       title: Request Owner
       type: object
-      required: [name, email]
+      required: [name, email, isLead]
       properties:
         name:
           type: string
+          description: The name of the request owner
         email:
           type: string
+          description: The email address of the request owner, must be the same one that is registerd with the PEC system
           format: email
           minLength: 3
           maxLength: 320
         phoneNumber:
           type: string
+          description: contact phone number for request owner
           minLength: 10
           maxLength: 16
+        isLead:
+          type: boolean
+          description: This marker determines if this request owner will be the lead on the campaign
       examples:
         - name: Jane Doe
           email: jane.doe@gov.uk
           phoneNumber: "+44 7700 900077"
+          type: true
 
     NewApplicants:
       title: New Applicants Object
       type: object
+      description: an object containing an array on of new applicants to be attached to a pre exisiting campaign
       required:
         - consumerSystemCampaignId
         - pecSystemCampaignId
@@ -402,40 +404,50 @@ components:
 
     Applicant:
       title: Applicant Object
+      description: an object conating the required and optional paramaters of an applicant
       type: object
       required: [consumerApplicantId, firstName, lastName, email]
       properties:
         consumerApplicantId:
           type: string
+          description: The applicant ID from the consumer system
         firstName:
           type: string
+          description: The legal first name of the applicant
         lastName: 
           type: string
+          description: The legal last name of the applicant
         email:
           type: string
+          description: The email address of the applicant, this will be used to generate their account (where neccessary) and invite them to complete the employment checking
           format: email
           minLength: 3
           maxLength: 320
         telephoneNumber:
           type: string
+          description: a contact telephone number for the applicant
           pattern: '^\+?[1-9]\d{1,14}$' 
           minLength: 10
           maxLength: 16
         dateOfBirth:
           type: string
+          description: The date of birth of the applicant in the format dd-mm-yyyy
           pattern: '^\d{2}-\d{2}-\d{4}$'
           minLength: 10
           maxLength: 10
         nino:
           type: string
+          description: National insurance number of the applicant
           pattern: '^[A-CEGHJ-PR-TW-Z]{1}[A-CEGHJ-NPR-TW-Z]{1} \d{2} \d{2} \d{2} [A-D]{1}$' 
           minLength: 13
           maxLength: 13
         crcLocation:
           type: string
+          description: the crc location that the applicant will be working from
           enum: [England, Wales, Scotland, Northern Ireland]
         applicantType:
           type: string
+          description: the type of applicant at the time of their application
           enum: [Internal, External, Other Government Department, Non-Departmental Public Body]
 
     WorkflowConfirmation:
@@ -448,7 +460,22 @@ components:
           type: string
         workflowStatus:
           type: string
-
+    specificCheckOverridesObject:
+      title: Specific Check Overrides Object
+      description: An object to hold specfic check overrides by employee type
+      type: object
+      properties:
+        applicantType:
+          type: string
+          enum:
+            - Internal
+            - External
+            - Other Goverment Department
+            - Non-Departmental Public Body
+        CheckTypes:
+          type: array
+          items: 
+            $ref: '#/components/schemas/CheckTypeEnum'
     CheckTypeEnum:
       title: Check Type
       type: string
