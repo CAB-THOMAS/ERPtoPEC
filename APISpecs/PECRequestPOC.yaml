@@ -20,7 +20,7 @@ paths:
   /paign:
     post:
       tags:
-        - paigns
+        - Campaigns
       summary: Create a new PEC paign
       description: Initialize a new pre-employment check (PEC) paign. Must be supplied with an Idempotency-Key for safe retries.
       parameters:
@@ -30,7 +30,7 @@ paths:
         content:
           application/json:
             schema: 
-              $ref: '#/components/schemas/Newpaign'
+              $ref: '#/components/schemas/NewCampaign'
       responses:
         '201':
           description: Successfully created the PEC campaign.
