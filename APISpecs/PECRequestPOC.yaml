@@ -17,7 +17,7 @@ security:
       - pec:write
 
 paths:
-  /paign:
+  /campaign:
     post:
       tags:
         - Campaigns
