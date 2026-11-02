@@ -1,7 +1,7 @@
 openapi: 3.1.0
 info:
   title: PEC Initiate Checks
-  description: API interaction to generate new PEC campaigns and add applicants.
+  description: API interaction to generate new PEC paigns and add applicants.
   version: 1.3.0
   contact:
     name: API Support Team
@@ -17,12 +17,12 @@ security:
       - pec:write
 
 paths:
-  /campaign:
+  /paign:
     post:
       tags:
-        - Campaigns
-      summary: Create a new PEC campaign
-      description: Initialize a new pre-employment check (PEC) campaign. Must be supplied with an Idempotency-Key for safe retries.
+        - paigns
+      summary: Create a new PEC paign
+      description: Initialize a new pre-employment check (PEC) paign. Must be supplied with an Idempotency-Key for safe retries.
       parameters:
         - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
@@ -30,7 +30,7 @@ paths:
         content:
           application/json:
             schema: 
-              $ref: '#/components/schemas/NewCampaign'
+              $ref: '#/components/schemas/Newpaign'
       responses:
         '201':
           description: Successfully created the PEC campaign.
@@ -292,6 +292,7 @@ components:
             - name: Jane Doe
               email: jane.doe@gov.uk
               phoneNumber: "+44 7700 900077"
+              isLead: true
 
     CRCRequirement:
       title: CRC Requirement
@@ -380,7 +381,7 @@ components:
         - name: Jane Doe
           email: jane.doe@gov.uk
           phoneNumber: "+44 7700 900077"
-          type: true
+          isLead: true
 
     NewApplicants:
       title: New Applicants Object
@@ -391,9 +392,9 @@ components:
         - pecSystemCampaignId
         - applicants
       properties:
-        consumerSystemCampaignId:
+        consumerSystempaignId:
           type: string
-        pecSystemCampaignId:
+        pecSystempaignId:
           type: string
         applicants:
           type: array
