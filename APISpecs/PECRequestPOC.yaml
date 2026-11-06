@@ -22,7 +22,7 @@ paths:
       tags:
         - Campaigns
       summary: Create a new PEC campaign
-      description: Initialize a new pre-employment check (PEC) campaign. Must be supplied with an Idempotency-Key for safe retries.
+      description: Initialise a new pre-employment check (PEC) campaign. Must be supplied with an Idempotency-Key for safe retries.
       parameters:
         - $ref: '#/components/parameters/IdempotencyKey'
       requestBody:
@@ -45,7 +45,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
         '401':
-          description: Unauthorized
+          description: Unauthorised
           content:
             application/problem+json:
               schema:
@@ -97,7 +97,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/ProblemDetails'
         '401':
-          description: Unauthorized
+          description: Unauthorised
           content:
             application/problem+json:
               schema:
@@ -193,14 +193,14 @@ components:
           description: Status note regarding the request creation.
         ssfgCluster:
           type: string
-          description: The name of the organizational cluster the request is coming from.
+          description: The name of the organisational cluster the request is coming from.
         campaignPECStatus:
           type: string
           description: The status of the campaign in the PEC system.
       examples:
         - consumerSystemCampaignId: req-1234-abcd
           pecSystemCampaignId: pec-9876-wxyz
-          message: "Campaign initialized successfully"
+          message: "Campaign initialised successfully"
           ssfgCluster: Unity
           campaignPECStatus: active
 
