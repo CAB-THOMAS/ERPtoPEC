@@ -305,6 +305,7 @@ components:
               email: jane.doe@gov.uk
               phoneNumber: "+44 7700 900077"
               isLead: true
+          nationalityRequirementsCheck: reserved
 
     CRCRequirement:
       title: CRC Requirement
