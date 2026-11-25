@@ -2,7 +2,7 @@ openapi: 3.1.0
 info:
   title: PEC Initiate Checks
   description: API interaction to generate new PEC campaigns and add applicants.
-  version: 1.4.0
+  version: 1.4.1
   contact:
     name: API Support Team
     email: centralrecruitproj@cabinetoffice.gov.uk
@@ -280,11 +280,7 @@ components:
             $ref: '#/components/schemas/specificCheckOverridesObject'
         nationalityRequirementsCheck:
           description: This identifies the nationality requirement for the campagin
-          type: string
-          enum:
-            - non-reserved
-            - reserved
-            - reserved+
+          $ref: '#/components/schemas/NationalityRequirements'
       examples:
         - consumerCampaignId: CMP12345
           consumerSystemCampaignId: req-1234-abcd
@@ -368,6 +364,28 @@ components:
           then:
             required: [level]
 
+    NationalityRequirements:
+      title: Nationality Requriments
+      description: Defienes what are the nationaility requirements for the campaign.
+      type: object
+      required:
+        - isNationalityRequired
+      properties:
+        isNationalityRequired:
+          type: boolean
+          description: Set to true if a nationaility requirements are needed.
+        level:
+          type: string
+          description: The level of nationaility.
+          enum: [opt1, opt2, opt3]
+      allOf:
+        - if:
+            properties:
+              isNationalityRequired:
+                const: true
+          then:
+            required: [level]
+            
     RequestOwner:
       title: Request Owner
       type: object
